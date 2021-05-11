@@ -1,0 +1,65 @@
+{
+  "workflow_description": {
+    "name":"run_demultiplexing",
+    "version": 1.0,
+    "label":"Demultiplexing with bcl2fastq",
+    "type":"run_demultiplexing",
+    "inputs":"{run_dir}/RTAComplete.txt",
+    "outputs":[
+      "raw_fastq/{sample}_R?.fastq.gz"
+    ]
+  },
+  "general_params": [
+    "sample_name",
+    "i7_name",
+    "i7_sequence",
+    "i5_name",
+    "i5_sequence",
+    "run_forward_read_length",
+    "run_reverse_read_length",
+    "run_dir"
+  ],
+  "gui_params" : {
+    "primary": {
+      "UMI": {
+        "label": "UMI",
+        "type": "enum",
+        "default": "no_umi",
+        "list": {
+          "no_umi": "No UMI",
+          "BRONCO": "BRONCO",
+          "custom": "Custom specified UMI"
+        }
+      }
+    },
+    "detailed": {
+      "barcode_mismatches": {
+       "label": "barcode_mismatches",
+        "type": "int",
+        "default": 0
+      },
+      "base_mask_field": {
+       "label": "Base mask field",
+        "type": "string",
+        "default": "",
+        "conditions": {
+          "value": {
+            "UMI": {
+              "BRONCO": "y*,I*,y*,y*"
+            }
+          }
+        }
+      },
+      "no_lane_splitting": {
+        "label": "No lane splitting",
+        "type": "bool",
+        "default": true
+      },
+      "additional_options": {
+        "label": "Additional options to bcl2fastq call",
+        "type": "string",
+        "default": ""
+      }
+    }
+  }
+}

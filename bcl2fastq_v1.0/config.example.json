@@ -1,0 +1,46 @@
+{
+  "run_dir":"210312_NB552435_0010_AHK335AFX2",
+  "run_forward_read_length": 150,
+  "run_reverse_read_length": 150,
+  "libraries":{
+    "vojta2": {
+      "UMI":"no_umi",
+      "barcode_mismatches":0,
+      "base_mask_field":"",
+      "no_lane_splitting": true,
+      "additional_options": "",
+      "samples": {
+        "id1":{
+          "sample_name": "s1",
+          "i7_name": "UDI-P01",
+          "i7_sequence": "TGGATCGATT",
+          "i5_name": "UDI-P01",
+          "i5_sequence": "ACCTAGCTGG"
+        },
+        "id2":{
+          "sample_name": "s2",
+          "i7_name": "UDI-P03",
+          "i7_sequence": "GTACCAAGTT",
+          "i5_name": "UDI-P03",
+          "i5_sequence": "CATGGTTCGG"
+        }
+      }
+    },
+    "small": {
+      "UMI":"no_umi",
+      "barcode_mismatches":0,
+      "base_mask_field":"",
+      "no_lane_splitting": true,
+      "additional_options": "",
+      "samples": {
+        "id3":{
+          "sample_name": "sample1",
+          "i7_name": "UDI-P01",
+          "i7_sequence": "TGGATCGATT",
+          "i5_name": "UDI-P01",
+          "i5_sequence": "ACCTAGCTGG"
+        }
+      }
+    }
+  }
+}
