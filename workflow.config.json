@@ -1,8 +1,8 @@
 {
   "workflow_description": {
-    "name":"run_demultiplexing",
+    "name":"bcl2fastq",
     "version": 1.0,
-    "label":"Demultiplexing with bcl2fastq",
+    "label":"Bcl2fastq, demultiplexing and UMI processing",
     "type":"run_demultiplexing",
     "inputs":"{run_dir}/RTAComplete.txt",
     "outputs":[
