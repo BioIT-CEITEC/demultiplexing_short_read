@@ -4,6 +4,13 @@ import pandas as pd
 
 min_version("5.18.0")
 
+GLOBAL_REF_PATH = "/mnt/ssd/ssd_3/references"
+
+####################################
+# FOLDERS
+#
+reference_directory = os.path.join(GLOBAL_REF_PATH,config["organism"],config["reference"])
+
 ##### Config processing #####
 def get_panda_sample_tab_from_config_one_lib(lib_name):
     sample_tab = pd.DataFrame.from_dict(config["libraries"][lib_name]["samples"],orient="index")
@@ -17,24 +24,29 @@ def get_panda_sample_tab_from_config(config):
     return sample_tab
 
 sample_tab = get_panda_sample_tab_from_config(config)
-#DIR = os.path.join("/mnt/ssd/ssd_1/snakemake" ,config["libraries"]["vojta2"]["samples"])
-
-#sample_tab = os.path.join()
 
 if config["run_reverse_read_length"] == 0:
     read_pair_tags = ["R1"]
 else:
     read_pair_tags = ["R1","R2"]
 
-##### Target rules #####
 
+wildcard_constraints:
+    sample="[^\.]+",
+    pair="R1|R2|R3|R4|SE"
+
+
+
+####################################
+# SEPARATE RULES
+
+#include: "rules/prepare_reference.smk"
+include: "rules/fastq_prepare.smk"
+include: "rules/bcl2fastq.smk"
+
+####################################
+# RULE ALL
 rule all:
     input:expand("{prefix}_{read_pair_tag}.fastq.gz",prefix=expand("{library}/raw_fastq/{sample}",zip,sample=sample_tab.sample_name,library=sample_tab.library),read_pair_tag=read_pair_tags),
     #input: expand(os.path.join(DIR,"raw_fastq/{sample}"))zz
-
-
-##### Modules #####
-
-include: "rules/bcl2fastq.smk"
-
 
