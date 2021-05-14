@@ -4,9 +4,11 @@
     "version": 1.0,
     "label":"Bcl2fastq, demultiplexing and UMI processing",
     "type":"run_demultiplexing",
-    "inputs":"{run_dir}/RTAComplete.txt",
+    "inputs":"{run_dir}/*",
     "outputs":[
-      "raw_fastq/{sample}_R?.fastq.gz"
+      "raw_fastq/{sample}_R?.fastq.gz",
+      "sample_logs/{sample}/*",
+      "sequencing_run_info/*"
     ]
   },
   "general_params": [
@@ -17,7 +19,9 @@
     "i5_sequence",
     "run_forward_read_length",
     "run_reverse_read_length",
-    "run_dir"
+    "run_dir",
+    "run_date",
+    "run_name"
   ],
   "gui_params" : {
     "primary": {
