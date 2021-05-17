@@ -1,7 +1,10 @@
 {
-  "run_dir":"210312_NB552435_0010_AHK335AFX2",
+  "run_dir":"210511_CD36_plate6_2run",
   "run_forward_read_length": 150,
   "run_reverse_read_length": 150,
+  "organism":"homsap",
+  "reference":"GRCh38-p10",
+  "material":"DNA",
   "libraries":{
     "vojta2": {
       "UMI":"no_umi",
@@ -11,18 +14,22 @@
       "additional_options": "",
       "samples": {
         "id1":{
-          "sample_name": "s1",
+          "sample_name": "25698",
           "i7_name": "UDI-P01",
           "i7_sequence": "TGGATCGATT",
           "i5_name": "UDI-P01",
-          "i5_sequence": "ACCTAGCTGG"
+          "i5_sequence": "ACCTAGCTGG",
+          "/mnt/ssd/ssd_1/snakemake/raw_fastq_temp/210511_CD36_plate6_2run_AHNLJFAFX2/25698_S1_R1_001.fastq.gz"
+          "/mnt/ssd/ssd_1/snakemake/raw_fastq_temp/210511_CD36_plate6_2run_AHNLJFAFX2/25698_S1_R2_001.fastq.gz",
         },
         "id2":{
-          "sample_name": "s2",
+          "sample_name": "26996",
           "i7_name": "UDI-P03",
           "i7_sequence": "GTACCAAGTT",
           "i5_name": "UDI-P03",
-          "i5_sequence": "CATGGTTCGG"
+          "i5_sequence": "CATGGTTCGG",
+          "/mnt/ssd/ssd_1/snakemake/raw_fastq_temp/210511_CD36_plate6_2run_AHNLJFAFX2/26996_S2_R1_001.fastq.gz",
+          "/mnt/ssd/ssd_1/snakemake/raw_fastq_temp/210511_CD36_plate6_2run_AHNLJFAFX2/26996_S2_R2_001.fastq.gz"
         }
       }
     },
