@@ -9,7 +9,6 @@ def get_panda_sample_tab_from_config_one_lib(lib_name):
     sample_tab["library"] = lib_name
     return sample_tab
 
-
 def get_panda_sample_tab_from_config(config):
     tab_list = [get_panda_sample_tab_from_config_one_lib(lib_name) for lib_name in config["libraries"].keys()]
     sample_tab = pd.concat(tab_list)
@@ -17,7 +16,8 @@ def get_panda_sample_tab_from_config(config):
 
 sample_tab = get_panda_sample_tab_from_config(config)
 #DIR = os.path.join("/mnt/ssd/ssd_1/snakemake" ,config["libraries"]["vojta2"]["samples"])
-print(sample_tab)
+sample_tab = sample_tab.set_index(pd.RangeIndex(start = 1,stop = len(sample_tab.index)+1))
+
 #sample_tab = os.path.join()
 
 if config["run_reverse_read_length"] == 0:
