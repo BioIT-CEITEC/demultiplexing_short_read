@@ -26,7 +26,7 @@ f.close()
 shell(command)
 
 sample = snakemake.wildcards.sample
-in_filename = snakemake.input.in_filename[0]
+in_filename = snakemake.input.in_filename
 in_filename_R2 = in_filename.replace("_R1","_R2")
 umi = snakemake.params.umi
 run_name = snakemake.params.run_name
