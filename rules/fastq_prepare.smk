@@ -27,7 +27,7 @@ rule fastq_prepare_PE:
         umi = config["libraries"]["UMI"],
         run_name = lambda wildcards: cfg.loc[(cfg[SAMPLE] == wildcards.sample),'run_name'].min(),
         rep_fastq_R1 = "raw_fastq/{sample_name}_R1.fastq.gz",
-        rep_fastq_R2 = "raw_fastq/{sample_name}_R2.fastq.gz
+        rep_fastq_R2 = "raw_fastq/{sample_name}_R2.fastq.gz"
     threads:  1
     conda:  "../wrappers/fastq_prepare_PE/env.yaml"
     script:  "../wrappers/fastq_prepare_PE/script.py"
