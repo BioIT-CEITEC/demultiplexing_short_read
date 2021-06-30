@@ -49,8 +49,6 @@ rule create_samplesheet:
     output: samplesheet_csv = config["run_name"] + "/{bcl2fastq_params_slug}/run_samplesheet.csv",
     script: "wrappers/create_samplesheet/script.py"
 
-# if len(pd.unique(sample_tab['bcl2fastq_params_slug'])) == 1:
-
 
 rule bcl2fastq:
     input:  run_complete_check = expand("{run_dir}/RTAComplete.txt",run_dir = config["run_dir"]),
@@ -61,6 +59,7 @@ rule bcl2fastq:
     conda: "wrappers/bcl2fastq/env.yaml"
     script: "wrappers/bcl2fastq/script.py"
 
+
 rule fastq_mv:
     input:  demultiplex_complete_check = expand(config["run_name"] + "/{bcl2fastq_params_slug}/Reports/html/index.html",bcl2fastq_params_slug = list(pd.unique(sample_tab['bcl2fastq_params_slug']))),
     output: fastqs_out = expand(config["run_name"] + "/{sample}_S{sample_index}_R1_001.fastq.gz",zip,sample = sample_tab.sample_name\
@@ -70,7 +69,6 @@ rule fastq_mv:
                                                                             ,sample_index = sample_tab.slug_id\
                                                                             ,bcl2fastq_params_slug = sample_tab.bcl2fastq_params_slug)
     script: "wrappers/fastq_mv/script.py"
-
 
 rule fastq_prepare_SE:
     input:  in_filename = lambda wildcards: expand("{run_name}/{sample}_S{sample_index}_R1_001.fastq.gz",run_name = config["run_name"]\
