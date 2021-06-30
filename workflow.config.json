@@ -36,7 +36,15 @@
         "list": {
           "no_umi": "No UMI",
           "BRONCO": "BRONCO",
-          "custom": "Custom specified UMI"
+          "Quantseq FWD": "Quantseq FWD",
+          "CORALL": "CORALL",
+          "custom_umi": "Custom specified UMI",
+          "CS_UMI": "CS_UMI",
+          "CS_UMI_sep_file": "CS_UMI_sep_file",
+          "IDT": "IDT",
+          "BRB": "BRB",
+          "LYNX": "LYNX",
+          "Qiaseq": "Qiaseq"
         }
       }
     },
