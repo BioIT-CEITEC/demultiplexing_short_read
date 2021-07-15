@@ -6,7 +6,7 @@ rule create_samplesheet:
             run_forward_read_length = config["run_forward_read_length"],
             run_reverse_read_length = config["run_reverse_read_length"]
     output: samplesheet_csv = config["run_name"] + "/{bcl2fastq_params_slug}/run_samplesheet.csv",
-    script: "wrappers/create_samplesheet/script.py"
+    script: "../wrappers/create_samplesheet/script.py"
 
 
 rule bcl2fastq:
@@ -15,8 +15,8 @@ rule bcl2fastq:
     output: demultiplex_complete_check = config["run_name"] + "/{bcl2fastq_params_slug}/Reports/html/index.html",
     params: library_configs = lambda wildcards: {lib_name:config["libraries"][lib_name] for lib_name in set(sample_tab[sample_tab["bcl2fastq_params_slug"] == wildcards.bcl2fastq_params_slug].library)}
     log:    config["run_name"] + "/{bcl2fastq_params_slug}/bcl2fastq.log"
-    conda: "wrappers/bcl2fastq/env.yaml"
-    script: "wrappers/bcl2fastq/script.py"
+    conda: "../wrappers/bcl2fastq/env.yaml"
+    script: "../wrappers/bcl2fastq/script.py"
 
 
 rule fastq_mv:
@@ -27,4 +27,4 @@ rule fastq_mv:
                                                                             ,sample = sample_tab.sample_name\
                                                                             ,sample_index = sample_tab.slug_id\
                                                                             ,bcl2fastq_params_slug = sample_tab.bcl2fastq_params_slug)
-    script: "wrappers/fastq_mv/script.py"
+    script: "../wrappers/fastq_mv/script.py"

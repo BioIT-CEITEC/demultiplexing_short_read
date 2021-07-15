@@ -229,7 +229,7 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
         shell(command)
 
 else:
-    command = "touch " + snakemake.output.R1
+    command = "touch " + snakemake.output.fastq
     f = open(log_filename, 'at')
     f.write("## COMMAND: " + command + "\n")
     f.close()

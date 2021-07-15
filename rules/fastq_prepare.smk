@@ -7,8 +7,8 @@ rule fastq_prepare_SE:
     params: umi = lambda wildcards: config["libraries"][wildcards.library]["UMI"],
             run_name = config["run_name"],
     threads:  1
-    conda:  "wrappers/fastq_prepare_SE/env.yaml"
-    script: "wrappers/fastq_prepare_SE/script.py"
+    conda:  "../wrappers/fastq_prepare_SE/env.yaml"
+    script: "../wrappers/fastq_prepare_SE/script.py"
 
 rule fastq_prepare_PE:
     input:  in_filename = lambda wildcards: expand("{run_name}/{sample}_S{sample_index}_R1_001.fastq.gz",run_name = config["run_name"]\
@@ -20,5 +20,5 @@ rule fastq_prepare_PE:
     params: umi = lambda wildcards: config["libraries"][wildcards.library]["UMI"],
             run_name = config["run_name"],
     threads:  1
-    conda:  "wrappers/fastq_prepare_PE/env.yaml"
-    script: "wrappers/fastq_prepare_PE/script.py"
+    conda:  "../wrappers/fastq_prepare_PE/env.yaml"
+    script: "../wrappers/fastq_prepare_PE/script.py"
