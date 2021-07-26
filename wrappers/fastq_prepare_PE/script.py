@@ -37,9 +37,9 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
                 " --bc-pattern=NNNNNNNNNNNN" +\
                 " --stdin=" + in_filename +\
                 " --stdout=" + snakemake.output.fastq +\
-                " -L " + snakemake.log.run
+                " -L " + log_filename
 
-        f = open(snakemake.log.run, 'at')
+        f = open(log_filename, 'at')
         f.write("## UMI COMMAND: "+command+"\n")
         f.close()
         shell(command)
@@ -100,7 +100,7 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
         in_filename_R2 = re.sub("_R2_","_R3_",in_filename_R2)
 
         command = "gunzip -c "+umi_file_in+" > "+umi_file
-        f = open(snakemake.log.run, 'at')
+        f = open(log_filename, 'at')
         f.write("## UMI COMMAND: "+command+"\n")
         f.close()
         shell(command)
@@ -111,7 +111,7 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
         else:
             command = "mv -T "+in_filename+" "+ snakemake.output.R1
 
-        f = open(snakemake.log.run, 'at')
+        f = open(log_filename, 'at')
         f.write("## COMMAND: "+command+"\n")
         f.close()
         shell(command)
@@ -122,7 +122,7 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
         else:
             command = "mv -T "+in_filename_R2+" "+ snakemake.output.R2
 
-        f = open(snakemake.log.run, 'at')
+        f = open(log_filename, 'at')
         f.write("## COMMAND: "+command+"\n")
         f.close()
         shell(command)
@@ -133,7 +133,7 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
         else:
             command = "mv -T "+in_filename+" "+ snakemake.output.R1
 
-        f = open(snakemake.log.run, 'at')
+        f = open(log_filename, 'at')
         f.write("## COMMAND: "+command+"\n")
         f.close()
         shell(command)
@@ -246,12 +246,12 @@ else:
 # else:
 #     #merge input fastq files
 #     command = " cat " + " ".join(sorted(snakemake.params.rep_fastq_R1)) + " > " + snakemake.output.R1
-#     f = open(snakemake.log.run, 'at')
+#     f = open(log_filename, 'at')
 #     f.write("## COMMAND: "+command+"\n")
 #     f.close()
 #     shell(command)
 #     command = " cat " + " ".join(sorted(snakemake.params.rep_fastq_R2)) + " > " + snakemake.output.R2
-#     f = open(snakemake.log.run, 'at')
+#     f = open(log_filename, 'at')
 #     f.write("## COMMAND: "+command+"\n")
 #     f.close()
 #     shell(command)
