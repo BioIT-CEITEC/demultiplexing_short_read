@@ -7,10 +7,10 @@
     "inputs":"{run_dir}/*",
     "outputs":[
       "raw_fastq/{sample}*fastq.gz",
-      "{library}/sample_logs/{sample}/*"
+      "sample_logs/{sample}/*"
     ],
     "run_outputs":[
-      "sequencing_run_info/*"
+      "{library}/sequencing_run_info/*"
     ]
   },
   "general_params": [
