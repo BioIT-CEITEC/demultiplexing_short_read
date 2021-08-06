@@ -7,7 +7,7 @@
     "inputs":"{run_dir}/*",
     "outputs":[
       "raw_fastq/{sample}*fastq.gz",
-      "sample_logs/{sample}/*"
+      "{library}/sample_logs/{sample}/*"
     ],
     "run_outputs":[
       "sequencing_run_info/*"
