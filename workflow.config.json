@@ -6,8 +6,7 @@
     "type":"run_demultiplexing",
     "inputs":"{run_dir}/*",
     "outputs":[
-      "raw_fastq/{sample}*fastq.gz",
-      "sample_logs/{sample}/*"
+      "raw_fastq/{sample}*fastq.gz"
     ],
     "run_outputs":[
       "{library}/sequencing_run_info/*"
