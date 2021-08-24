@@ -34,6 +34,8 @@ wildcard_constraints:
     library = "|".join(set(sample_tab.library.tolist())),
     bcl2fastq_params_slug = "bcl2fastqslug_[a-zA-Z0-9_-]*",
 
+print(sample_tab.library)
+
 ##### inputs to rule all #####
 if "merged" in config and config["merged"]:
     primary_lib_name = list(config["libraries"].keys())[0]
