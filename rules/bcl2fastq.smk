@@ -1,5 +1,6 @@
 
 rule create_samplesheet:
+    input: run_info=expand("{run_dir}/RunInfo.xml",run_dir=config["run_dir"]),
     params: sample_tab = lambda wildcards: sample_tab[sample_tab["bcl2fastq_params_slug"] == wildcards.bcl2fastq_params_slug],
             date = config["run_date"],
             run_name = config["run_name"],
