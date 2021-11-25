@@ -61,7 +61,8 @@
         "conditions": {
           "value": {
             "UMI": {
-              "BRONCO": "y*,I*,y*,y*"
+              "BRONCO": "y*,I*,y*,y*",
+              "LYNX": "y*,I*,y*,y*"
             }
           }
         }
