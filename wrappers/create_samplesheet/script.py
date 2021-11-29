@@ -1,7 +1,7 @@
 #############################################################
 # wrapper for rule: create_samplesheet
 #############################################################
-import os
+import re
 import csv
 
 from snakemake.shell import shell
@@ -12,6 +12,12 @@ from snakemake.shell import shell
 # f.write("\n##\n## RULE: create_samplesheet \n##\n")
 # f.close()
 
+run_info_filename = str(snakemake.input.run_info)
+
+with open(run_info_filename) as f:
+   run_index_lengths = re.findall("<Read.*NumCycles=\"([0-9]+)\".*IsIndexedRead=\"Y\" />", f.read())
+run_index_lengths = [int(index) for index in run_index_lengths]
+print(run_index_lengths)
 
 sample_tab = snakemake.params.sample_tab
 
@@ -68,26 +74,48 @@ with open(snakemake.output.samplesheet_csv, mode='w') as samplesheet_file:
     #     overall_index = overall_index + len(i7_indices)
     # overall_index = overall_index + lib_samples.count()
 
-
+    fake_index_list = ["AAAAAAAAAAAA","TAAAAAAAAAAA","TTAAAAAAAAAA","TTTAAAAAAAAA","TTTTAAAAAAAA","TTTTTAAAAAAA","TTTTTTAAAAAAA"]
+    existing_index_check_dict = {}
+    dup_index_count = 0
 
     if "i5_sequence" in sample_tab:
+        if len(run_index_lengths) < 2:
+            run_index_lengths = [100, 100]
         for index, row in sample_tab.iterrows():
             # sample.original_fastq_file = sample.name + "_S" + str(overall_index+index+1) + "_R1_001.fastq.gz"
-            writer.writerow([row["sample_name"], "", "", "",
-                            row["i7_name"],
-                            row["i7_sequence"],
-                            row["i5_name"],
-                            row["i5_sequence"], "", ""])
+            if not row["i7_sequence"][0:run_index_lengths[0]] + row["i5_sequence"][0:run_index_lengths[1]] in existing_index_check_dict.keys():
+                writer.writerow([row["sample_name"], "", "", "",
+                                row["i7_name"],
+                                row["i7_sequence"][0:run_index_lengths[0]],
+                                row["i5_name"],
+                                row["i5_sequence"][0:run_index_lengths[1]], "", ""])
+                existing_index_check_dict[row["i7_sequence"][0:run_index_lengths[0]] + row["i5_sequence"][0:run_index_lengths[1]]] = True
+            else:
+                writer.writerow([row["sample_name"], "", "", "",
+                                 row["i7_name"],
+                                 fake_index_list[dup_index_count][0:run_index_lengths[0]],
+                                 row["i5_name"],
+                                 fake_index_list[dup_index_count][0:run_index_lengths[1]], "", ""])
+                dup_index_count = dup_index_count + 1
     else:
+        if len(run_index_lengths) < 1:
+            run_index_lengths = [100]
         for index, row in sample_tab.iterrows():
             # sample.original_fastq_file = sample.name + "_S" + str(overall_index+index+1) + "_R1_001.fastq.gz"
-            writer.writerow([row["sample_name"], "", "", "",
-                            row["i7_name"],
-                            row["i7_sequence"],
-                            "",
-                            "", "", ""])
-
-
+            if not row["i7_sequence"][0:run_index_lengths[0]] in existing_index_check_dict.keys():
+                writer.writerow([row["sample_name"], "", "", "",
+                                row["i7_name"],
+                                row["i7_sequence"][0:run_index_lengths[0]],
+                                "",
+                                "", "", ""])
+                existing_index_check_dict[row["i7_sequence"][0:run_index_lengths[0]]] = True
+            else:
+                writer.writerow([row["sample_name"], "", "", "",
+                                row["i7_name"],
+                                fake_index_list[dup_index_count][0:run_index_lengths[0]],
+                                "",
+                                "", "", ""])
+                dup_index_count = dup_index_count + 1
 
 
 
