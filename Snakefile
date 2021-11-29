@@ -23,9 +23,21 @@ def get_panda_sample_tab_from_config(config):
 
 sample_tab = get_panda_sample_tab_from_config(config)
 sample_tab = sample_tab.set_index(pd.RangeIndex(start=1,stop=len(sample_tab.index) + 1))
+
+#duplicated sample name check
+existing_name_check_dict = {}
+
+for index, row in sample_tab.iterrows():
+    if row["sample_name"] in existing_name_check_dict.keys():
+        sample_tab.loc[sample_tab['library'] == row["library"], 'bcl2fastq_params_slug'] = row["bcl2fastq_params_slug"] + "_" + str(index)
+    existing_name_check_dict[row["sample_name"]] = True
+
+
 sample_tab["slug_id"] = sample_tab.groupby("bcl2fastq_params_slug").transform(lambda x: range(1,len(x.index) + 1))[
     "sample_name"]
-print(sample_tab)
+
+
+# print(sample_tab)
 
 
 ##### wildcard_constraints #####
