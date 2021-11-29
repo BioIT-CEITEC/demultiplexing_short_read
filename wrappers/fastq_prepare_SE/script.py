@@ -92,22 +92,27 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
                  else:
                      out_SE.write(R1_line)
     elif umi == "CS_UMI":
-        out_SE = gzip.open(snakemake.output.fastq, 'wt')
+        out_SE = snakemake.output.fastq[:-3]
 
         in_filename_R2 = re.sub("_R1_","_R2_",in_filename)
+        
+        command = "(paste <(zcat "+in_filename+") <(zcat "+in_filename_R2+") | awk '{{ if(NR%4==1) {{split($1,head_R1,\" \")}} else if(NR%4==2) {{umi=substr($1,1,3)substr($2,1,3); print head_R1[1] \"_\" umi \" \" head_R1[2] \"\\n\" substr($1,7) > out}} else if(NR%4==0) {{print substr($1,7) > out}} else {{print $1 > out}} }}' FS='\\t' out="+out_SE+" && gzip -f "+out_SE+") 2>> "+log_filename
+        with open(log_filename, 'at') as f:
+            f.write("## COMMAND: "+command+"\n")
+        shell(command)
 
-        with gzip.open(in_filename,'rt') as R1, gzip.open(in_filename_R2,'rt') as R2:
-            i = 0
-            for R1_line, R2_line in zip(R1, R2):
-                i += 1
-                if i % 4 == 1:
-                    header_R1 = R1_line.strip()
-                elif i % 4 == 2:
-                    out_SE.write(header_R1.split(" ")[0] + "_" + R1_line.strip()[0:3] + R2_line.strip()[0:3] + " " + header_R1.split(" ")[1] + "\n" + R1_line[6:])
-                elif i % 4 == 0:
-                    out_SE.write(R1_line[6:])
-                else:
-                    out_SE.write(R1_line)
+        # with gzip.open(in_filename,'rt') as R1, gzip.open(in_filename_R2,'rt') as R2:
+        #     i = 0
+        #     for R1_line, R2_line in zip(R1, R2):
+        #         i += 1
+        #         if i % 4 == 1:
+        #             header_R1 = R1_line.strip()
+        #         elif i % 4 == 2:
+        #             out_SE.write(header_R1.split(" ")[0] + "_" + R1_line.strip()[0:3] + R2_line.strip()[0:3] + " " + header_R1.split(" ")[1] + "\n" + R1_line[6:])
+        #         elif i % 4 == 0:
+        #             out_SE.write(R1_line[6:])
+        #         else:
+        #             out_SE.write(R1_line)
 
     elif umi == "Quantseq FWD":
         command = "umi_tools extract --extract-method=string"+\

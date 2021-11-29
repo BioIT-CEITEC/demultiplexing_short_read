@@ -18,7 +18,6 @@ f.close()
 shell.executable("/bin/bash")
 
 
-
 command = "mkdir -p " + os.path.dirname(snakemake.output[0])
 f = open(log_filename, 'at')
 f.write("## CREATE_OUTPUT_DIR: "+command+"\n")
@@ -162,50 +161,64 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
     elif umi == "CS_UMI_sep_file":
 
         umi_file = os.path.dirname(snakemake.output.R2)+ "/"+sample+".UMI.fastq"
-        f_umi = open(umi_file, 'w')
-        out_R1 = gzip.open(snakemake.output.R1, 'wt')
-        out_R2 = gzip.open(snakemake.output.R2, 'wt')
+        out_R1 = snakemake.output.R1[:-3]
+        out_R2 = snakemake.output.R2[:-3]
+        
+        command = "(paste -d '' <(zcat "+in_filename+" | awk '{{ if(NR%4==2 || NR%4==0) {{print substr($0,1,3); print substr($0,7) > out}} else {{print $0; print $0 > out}} }}' out="+out_R1+") <(zcat "+in_filename_R2+" | awk '{{ if(NR%4==2 || NR%4==0) {{print substr($0,1,3); print substr($0,7) > out}} else {{print \"\"; print $0 > out}} }}' out="+out_R2+") > "+umi_file+" && gzip -f "+out_R1+" "+out_R2+") 2>> "+log_filename
+        with open(log_filename, 'at') as f:
+            f.write("## COMMAND: "+command+"\n")
+        shell(command)
 
-        with gzip.open(in_filename,'rt') as R1, gzip.open(in_filename_R2,'rt') as R2:
-            i = 0
-            for R1_line, R2_line in zip(R1, R2):
-                i += 1
-                if i % 4 == 1:
-                    header_R1 = R1_line.strip()
-                    header_R2 = R2_line.strip()
-                elif i % 4 == 2:
-                    out_R1.write(header_R1 + "\n" + R1_line[6:])
-                    out_R2.write(header_R2 + "\n" + R2_line[6:])
-                    f_umi.write(header_R1 + "\n" + R1_line.strip()[0:3] + R2_line.strip()[0:3] + "\n")
-                elif i % 4 == 0:
-                    out_R1.write(R1_line[6:])
-                    out_R2.write(R2_line[6:])
-                    f_umi.write(R1_line.strip()[0:3] + R2_line.strip()[0:3] + "\n")
-                else:
-                    out_R1.write(R1_line)
-                    out_R2.write(R2_line)
-                    f_umi.write(R1_line)
+        # with gzip.open(in_filename,'rt') as R1, gzip.open(in_filename_R2,'rt') as R2:
+        #     i = 0
+        #     for R1_line, R2_line in zip(R1, R2):
+        #         i += 1
+        #         if i % 4 == 1:
+        #             header_R1 = R1_line.strip()
+        #             header_R2 = R2_line.strip()
+        #         elif i % 4 == 2:
+        #             out_R1.write(header_R1 + "\n" + R1_line[6:])
+        #             out_R2.write(header_R2 + "\n" + R2_line[6:])
+        #             f_umi.write(header_R1 + "\n" + R1_line.strip()[0:3] + R2_line.strip()[0:3] + "\n")
+        #         elif i % 4 == 0:
+        #             out_R1.write(R1_line[6:])
+        #             out_R2.write(R2_line[6:])
+        #             f_umi.write(R1_line.strip()[0:3] + R2_line.strip()[0:3] + "\n")
+        #         else:
+        #             out_R1.write(R1_line)
+        #             out_R2.write(R2_line)
+        #             f_umi.write(R1_line)
 
     elif umi == "CS_UMI":
-        out_R1 = gzip.open(snakemake.output.R1, 'wt')
-        out_R2 = gzip.open(snakemake.output.R2, 'wt')
+        out_R1 = snakemake.output.R1[:-3]
+        out_R2 = snakemake.output.R2[:-3]
+        
+        command = "(paste <(zcat "+in_filename+") <(zcat "+in_filename_R2+") |"+\
+                  " awk '{{ if(NR%4==1) {{split($1,head_R1,\" \"); split($2,head_R2,\" \")}}"+\
+                  " else if(NR%4==2) {{umi=substr($1,1,3)substr($2,1,3); print head_R1[1] \"_\" umi \" \" head_R1[2] \"\\n\" substr($1,7) > out1;"+\
+                  " print head_R2[1] \"_\" umi \" \" head_R2[2] \"\\n\" substr($2,7) > out2}} else if(NR%4==0) {{print substr($1,7) > out1;"+\
+                  " print substr($2,7) > out2}} else {{print $1 > out1; print $2 > out2}} }}' FS='\\t' out1="+out_R1+" out2="+out_R2+\
+                  " && gzip -f "+out_R1+" "+out_R2+") 2>> "+log_filename
+        with open(log_filename, 'at') as f:
+            f.write("## COMMAND: "+command+"\n")
+        shell(command)
 
-        with gzip.open(in_filename,'rt') as R1, gzip.open(in_filename_R2,'rt') as R2:
-            i = 0
-            for R1_line, R2_line in zip(R1, R2):
-                i += 1
-                if i % 4 == 1:
-                    header_R1 = R1_line.strip()
-                    header_R2 = R2_line.strip()
-                elif i % 4 == 2:
-                    out_R1.write(header_R1.split(" ")[0] + "_" + R1_line.strip()[0:3] + R2_line.strip()[0:3] + " " + header_R1.split(" ")[1] + "\n" + R1_line[6:])
-                    out_R2.write(header_R2.split(" ")[0] + "_" + R1_line.strip()[0:3] + R2_line.strip()[0:3] + " " + header_R2.split(" ")[1] + "\n" + R2_line[6:])
-                elif i % 4 == 0:
-                    out_R1.write(R1_line[6:])
-                    out_R2.write(R2_line[6:])
-                else:
-                    out_R1.write(R1_line)
-                    out_R2.write(R2_line)
+        # with gzip.open(in_filename,'rt') as R1, gzip.open(in_filename_R2,'rt') as R2:
+        #     i = 0
+        #     for R1_line, R2_line in zip(R1, R2):
+        #         i += 1
+        #         if i % 4 == 1:
+        #             header_R1 = R1_line.strip()
+        #             header_R2 = R2_line.strip()
+        #         elif i % 4 == 2:
+        #             out_R1.write(header_R1.split(" ")[0] + "_" + R1_line.strip()[0:3] + R2_line.strip()[0:3] + " " + header_R1.split(" ")[1] + "\n" + R1_line[6:])
+        #             out_R2.write(header_R2.split(" ")[0] + "_" + R1_line.strip()[0:3] + R2_line.strip()[0:3] + " " + header_R2.split(" ")[1] + "\n" + R2_line[6:])
+        #         elif i % 4 == 0:
+        #             out_R1.write(R1_line[6:])
+        #             out_R2.write(R2_line[6:])
+        #         else:
+        #             out_R1.write(R1_line)
+        #             out_R2.write(R2_line)
 
 
     else:
