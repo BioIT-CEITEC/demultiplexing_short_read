@@ -32,9 +32,9 @@ for index, row in sample_tab.iterrows():
         sample_tab.loc[sample_tab['library'] == row["library"], 'bcl2fastq_params_slug'] = row["bcl2fastq_params_slug"] + "_" + str(index)
     existing_name_check_dict[row["sample_name"]] = True
 
+# print(sample_tab)
 
-sample_tab["slug_id"] = sample_tab.groupby("bcl2fastq_params_slug").transform(lambda x: range(1,len(x.index) + 1))[
-    "sample_name"]
+sample_tab["slug_id"] = sample_tab.groupby("bcl2fastq_params_slug").transform(lambda x: range(1,len(x.index) + 1))["sample_name"]
 
 
 # print(sample_tab)
