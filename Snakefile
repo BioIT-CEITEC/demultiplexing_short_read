@@ -5,6 +5,10 @@ import os
 
 min_version("5.18.0")
 
+#Files subdirectory check for NovaSeq outputs
+if os.path.exists(config["run_dir"] + "/Files/RTAComplete.txt"):
+    config["run_dir"] = config["run_dir"] + "/Files"
+
 ##### Sample table creation #####
 def get_panda_sample_tab_from_config_one_lib(lib_name):
     sample_tab = pd.DataFrame.from_dict(config["libraries"][lib_name]["samples"],orient="index")
