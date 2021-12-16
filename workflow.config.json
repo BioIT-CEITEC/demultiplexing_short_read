@@ -26,7 +26,6 @@
     "run_date",
     "run_name"
   ],
-  "requested_params": [],
   "gui_params" : {
     "primary": {
       "UMI": {
