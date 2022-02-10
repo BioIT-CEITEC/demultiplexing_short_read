@@ -3,9 +3,6 @@
 ######################################
 import os
 import re
-import sys
-import math
-import subprocess
 import gzip
 from snakemake.shell import shell
 
@@ -169,25 +166,6 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
             f.write("## COMMAND: "+command+"\n")
         shell(command)
 
-        # with gzip.open(in_filename,'rt') as R1, gzip.open(in_filename_R2,'rt') as R2:
-        #     i = 0
-        #     for R1_line, R2_line in zip(R1, R2):
-        #         i += 1
-        #         if i % 4 == 1:
-        #             header_R1 = R1_line.strip()
-        #             header_R2 = R2_line.strip()
-        #         elif i % 4 == 2:
-        #             out_R1.write(header_R1 + "\n" + R1_line[6:])
-        #             out_R2.write(header_R2 + "\n" + R2_line[6:])
-        #             f_umi.write(header_R1 + "\n" + R1_line.strip()[0:3] + R2_line.strip()[0:3] + "\n")
-        #         elif i % 4 == 0:
-        #             out_R1.write(R1_line[6:])
-        #             out_R2.write(R2_line[6:])
-        #             f_umi.write(R1_line.strip()[0:3] + R2_line.strip()[0:3] + "\n")
-        #         else:
-        #             out_R1.write(R1_line)
-        #             out_R2.write(R2_line)
-        #             f_umi.write(R1_line)
 
     elif umi == "CS_UMI":
         out_R1 = snakemake.output.R1[:-3]
@@ -203,41 +181,14 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
             f.write("## COMMAND: "+command+"\n")
         shell(command)
 
-        # with gzip.open(in_filename,'rt') as R1, gzip.open(in_filename_R2,'rt') as R2:
-        #     i = 0
-        #     for R1_line, R2_line in zip(R1, R2):
-        #         i += 1
-        #         if i % 4 == 1:
-        #             header_R1 = R1_line.strip()
-        #             header_R2 = R2_line.strip()
-        #         elif i % 4 == 2:
-        #             out_R1.write(header_R1.split(" ")[0] + "_" + R1_line.strip()[0:3] + R2_line.strip()[0:3] + " " + header_R1.split(" ")[1] + "\n" + R1_line[6:])
-        #             out_R2.write(header_R2.split(" ")[0] + "_" + R1_line.strip()[0:3] + R2_line.strip()[0:3] + " " + header_R2.split(" ")[1] + "\n" + R2_line[6:])
-        #         elif i % 4 == 0:
-        #             out_R1.write(R1_line[6:])
-        #             out_R2.write(R2_line[6:])
-        #         else:
-        #             out_R1.write(R1_line)
-        #             out_R2.write(R2_line)
-
 
     else:
-        #copy R1
-        # if "externally_sequenced_fake" in run_name:
-        #     command = "cp -T "+in_filename+" "+ snakemake.output.R1
-        # else:
-        #     command = "mv -T "+in_filename+" "+ snakemake.output.R1
         command = "mv -T " + in_filename + " " + snakemake.output.R1
         f = open(log_filename, 'at')
         f.write("## COMMAND: "+command+"\n")
         f.close()
         shell(command)
 
-        #copy R2
-        # if "externally_sequenced_fake" in run_name:
-        #     command = "cp -T "+in_filename_R2+" "+ snakemake.output.R2
-        # else:
-        #     command = "mv -T "+in_filename_R2+" "+ snakemake.output.R2
         command = "mv -T " + in_filename_R2 + " " + snakemake.output.R2
         f = open(log_filename, 'at')
         f.write("## COMMAND: "+command+"\n")
@@ -255,16 +206,3 @@ else:
     f.write("## COMMAND: " + command + "\n")
     f.close()
     shell(command)
-
-# else:
-#     #merge input fastq files
-#     command = " cat " + " ".join(sorted(snakemake.params.rep_fastq_R1)) + " > " + snakemake.output.R1
-#     f = open(log_filename, 'at')
-#     f.write("## COMMAND: "+command+"\n")
-#     f.close()
-#     shell(command)
-#     command = " cat " + " ".join(sorted(snakemake.params.rep_fastq_R2)) + " > " + snakemake.output.R2
-#     f = open(log_filename, 'at')
-#     f.write("## COMMAND: "+command+"\n")
-#     f.close()
-#     shell(command)

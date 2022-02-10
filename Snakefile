@@ -36,18 +36,12 @@ for index, row in sample_tab.iterrows():
         sample_tab.loc[sample_tab['library'] == row["library"], 'bcl2fastq_params_slug'] = row["bcl2fastq_params_slug"] + "_" + str(index)
     existing_name_check_dict[row["sample_name"]] = True
 
-# print(sample_tab)
-
 sample_tab["slug_id"] = sample_tab.groupby("bcl2fastq_params_slug").transform(lambda x: range(1,len(x.index) + 1))["sample_name"]
-
-
-# print(sample_tab)
 
 if "library_output" in config:
     library_output = list(config["library_output"].keys())[0]
 else:
     library_output = ""
-
 
 ##### wildcard_constraints #####
 wildcard_constraints:
@@ -55,7 +49,6 @@ wildcard_constraints:
     library = "|".join(set(sample_tab.library.tolist())),
     bcl2fastq_params_slug = "bcl2fastqslug_[a-zA-Z0-9_-]*",
 
-print(sample_tab.library)
 
 ##### inputs to rule all #####
 if "merged" in config and config["merged"]:
