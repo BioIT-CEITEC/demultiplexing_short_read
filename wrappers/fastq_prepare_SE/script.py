@@ -3,11 +3,8 @@
 ######################################
 import os
 import re
-import sys
-import math
 import time
 from glob import glob
-import subprocess
 import gzip
 from snakemake.shell import shell
 
@@ -53,18 +50,6 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
 
     elif umi == "custom_umi":
 
-    #        command = "umi_tools extract --extract-method=string"+\
-    #                " --bc-pattern=NNNNNNNN" +\
-    #                " --stdin=" + in_filename +\
-    #                " --stdout=" + snakemake.output.fastq +\
-    #                " -L " + log_filename
-    #
-    #        f = open(log_filename, 'at')
-    #        f.write("## UMI COMMAND: "+command+"\n")
-    #        f.close()
-    #        shell(command)
-
-
          out_SE = gzip.open(snakemake.output.fastq, 'wt')
 
          in_filename_R2 = re.sub("_R1_","_R2_",in_filename)
@@ -77,18 +62,8 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
                  if i % 4 == 1:
                      header_R1 = R1_line.strip()
                  elif i % 4 == 2:
-                     # R2_seq = Seq(R2_line.strip())
-                     # R2_seq = str(R2_seq.reverse_complement())
-                     # R2_seq = R2_line.strip()[::-1]
-                     # cut_length = len(re.sub('[AN]+$|[TN]+$', '', R2_seq))
-                     # out_SE.write(header_R1.split(" ")[0] + "_" + R1_line.strip()[0:6] + " " + header_R1.split(" ")[1] + "\n" + R1_line.strip()[6:] + R2_seq[:cut_length] + "\n")
-
-                     # out_SE.write(header_R1.split(" ")[0] + "_" + R1_line.strip()[0:3] + R2_line.strip()[0:3] + " " + header_R1.split(" ")[1] + "\n" + R1_line[3:])
-
                      ## Chip_Tanja
                      out_SE.write(header_R1.split(" ")[0] + "_" + R2_line.strip() + " " + header_R1.split(" ")[1] + "\n" + R1_line)
-                 # elif i % 4 == 0:
-                 #     out_SE.write(R1_line[3:])
                  else:
                      out_SE.write(R1_line)
     elif umi == "CS_UMI":
@@ -101,18 +76,6 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
             f.write("## COMMAND: "+command+"\n")
         shell(command)
 
-        # with gzip.open(in_filename,'rt') as R1, gzip.open(in_filename_R2,'rt') as R2:
-        #     i = 0
-        #     for R1_line, R2_line in zip(R1, R2):
-        #         i += 1
-        #         if i % 4 == 1:
-        #             header_R1 = R1_line.strip()
-        #         elif i % 4 == 2:
-        #             out_SE.write(header_R1.split(" ")[0] + "_" + R1_line.strip()[0:3] + R2_line.strip()[0:3] + " " + header_R1.split(" ")[1] + "\n" + R1_line[6:])
-        #         elif i % 4 == 0:
-        #             out_SE.write(R1_line[6:])
-        #         else:
-        #             out_SE.write(R1_line)
 
     elif umi == "Quantseq FWD":
         command = "umi_tools extract --extract-method=string"+\
@@ -126,7 +89,6 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
         f.close()
         shell(command)
 
-        # shell("rm " + in_filename)
 
     elif umi == "IDT":
         umi_file_in = re.sub("_R1_","_R2_",in_filename)
@@ -208,24 +170,9 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
             f.write("## COMMAND: "+command+"\n")
             f.close()
             shell(command)
-    # elif umi == "Qiaseq miRNA":
-    #     command = "umi_tools extract --extract-method=regex"+\
-    #             " --bc-pattern='.*(?P<discard_1>AACTGTAGGCACCATCAAT)(?P<umi_1>.{{12}})(?P<discard_2>.*)'" +\
-    #             " --stdin=" + in_filename +\
-    #             " --stdout=" + snakemake.output.fastq +\
-    #             " -L " + log_filename
-    #
-    #     f = open(log_filename, 'at')
-    #     f.write("## UMI COMMAND: "+command+"\n")
-    #     f.close()
-    #     shell(command)
-    #
-    #     shell("rm " + in_filename)
+
     else:
-        #copy R1
-        # if "externally_sequenced_fake" in run_name:
-        #     command = "cp -T "+in_filename+" "+ snakemake.output.fastq
-        # else:
+
         command = "mv -T "+in_filename+" "+ snakemake.output.fastq
 
         f = open(log_filename, 'at')
@@ -239,10 +186,4 @@ else:
     f.write("## COMMAND: " + command + "\n")
     f.close()
     shell(command)
-# else:
-#     #merge input fastq files
-#     command = " cat " + " ".join(sorted(snakemake.params.rep_fastq)) + " > " + snakemake.output.fastq
-#     f = open(log_filename, 'at')
-#     f.write("## COMMAND: "+command+"\n")
-#     f.close()
-#     shell(command)
+
