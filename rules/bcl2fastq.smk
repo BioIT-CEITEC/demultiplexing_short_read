@@ -14,11 +14,17 @@ rule bcl2fastq:
     input:  run_complete_check = expand("{run_dir}/RTAComplete.txt",run_dir = config["run_dir"]),
             samplesheet_csv= config["run_name"] + "/{bcl2fastq_params_slug}/run_samplesheet.csv"
     output: demultiplex_complete_check = config["run_name"] + "/{bcl2fastq_params_slug}/Reports/html/index.html",
+            stats = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/Stats.json",
     params: library_configs = lambda wildcards: {lib_name:config["libraries"][lib_name] for lib_name in set(sample_tab[sample_tab["bcl2fastq_params_slug"] == wildcards.bcl2fastq_params_slug].library)}
     log:    config["run_name"] + "/{bcl2fastq_params_slug}/bcl2fastq.log"
     conda: "../wrappers/bcl2fastq/env.yaml"
     script: "../wrappers/bcl2fastq/script.py"
 
+rule stats_copy:
+    input:  lambda wildcards: expand(config["run_name"] + "/{bcl2fastq_params_slug}/Stats/Stats.json",
+            bcl2fastq_params_slug = sample_tab.loc[sample_tab.library == wildcards.library_name,'bcl2fastq_params_slug'].min())
+    output: "{library_name}/sequencing_run_info/Stats.json"
+    script: "../wrappers/copy_stats/script.py"
 
 rule fastq_mv:
     input:  demultiplex_complete_check = expand(config["run_name"] + "/{bcl2fastq_params_slug}/Reports/html/index.html",bcl2fastq_params_slug = list(pd.unique(sample_tab['bcl2fastq_params_slug']))),

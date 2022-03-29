@@ -48,6 +48,7 @@ if "library_output" in config:
 else:
     library_output = ""
 
+print(library_output)
 
 ##### wildcard_constraints #####
 wildcard_constraints:
@@ -62,8 +63,8 @@ if "merged" in config and config["merged"]:
     primary_lib_name = list(config["libraries"].keys())[0]
     primary_lib_raw_fastq_dir = os.path.join(primary_lib_name,"raw_fastq")
     primary_files = [f for f in os.listdir(primary_lib_raw_fastq_dir) if os.path.isfile(os.path.join(primary_lib_raw_fastq_dir,f))]
-    all_sample_inputs = [os.path.join(primary_lib_name + "-merged","raw_fastq",f) for f in primary_files]
-
+    all_sample_inputs = [os.path.join(library_output,"raw_fastq",f) for f in primary_files]
+    library_names = library_output
 else:
 
     ##### All resulting fastqs #####
@@ -71,10 +72,11 @@ else:
     first_pair_end_samples = [row["library"] + "/raw_fastq/" + row["sample_name"] + "_R1.fastq.gz" for  index, row in sample_tab.iterrows() if config["libraries"][row["library"]]["lib_reverse_read_length"] != 0]
     second_pair_end_samples = [row["library"] + "/raw_fastq/" + row["sample_name"] + "_R2.fastq.gz" for  index, row in sample_tab.iterrows() if config["libraries"][row["library"]]["lib_reverse_read_length"] != 0]
     all_sample_inputs = single_end_samples + first_pair_end_samples + second_pair_end_samples
-
+    library_names = set(config["libraries"].keys())
 
 rule all:
-    input: all_sample_inputs
+    input: fastq_files = all_sample_inputs,
+           stats = expand("{library_name}/sequencing_run_info/Stats.json",library_name = library_names)
 
 ##### Modules #####
 
