@@ -65,22 +65,3 @@ f = open(log_filename, 'at')
 f.write("## COMMAND: "+command+"\n")
 f.close()
 shell(command)
-
-for lib_name in library_configs.keys():
-    command = "mkdir -p " + lib_name
-    f = open(log_filename, 'at')
-    f.write("## COMMAND: " + command + "\n")
-    f.close()
-    shell(command)
-
-    command = "cp -r " + fastq_ouput_dir + "/Stats " + lib_name + "/sequencing_run_info/"
-    f = open(log_filename, 'at')
-    f.write("## COMMAND: " + command + "\n")
-    f.close()
-    shell(command)
-
-    command = "cp -r " + fastq_ouput_dir + "/Reports " + lib_name + "/sequencing_run_info/"
-    f = open(log_filename, 'at')
-    f.write("## COMMAND: " + command + "\n")
-    f.close()
-    shell(command)

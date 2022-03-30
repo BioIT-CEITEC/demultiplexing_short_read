@@ -57,6 +57,7 @@ if "merged" in config and config["merged"]:
     primary_files = [f for f in os.listdir(primary_lib_raw_fastq_dir) if os.path.isfile(os.path.join(primary_lib_raw_fastq_dir,f))]
     all_sample_inputs = [os.path.join(library_output,"raw_fastq",f) for f in primary_files]
     library_names = library_output
+    sample_tab = sample_tab.loc[sample_tab.library == primary_lib_name]
 else:
 
     ##### All resulting fastqs #####

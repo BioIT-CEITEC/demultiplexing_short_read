@@ -22,9 +22,8 @@ rule bcl2fastq:
     script: "../wrappers/bcl2fastq/script.py"
 
 rule stats_copy:
-    input:  lambda wildcards: expand(config["run_name"] + "/{bcl2fastq_params_slug}/Stats/Stats.json",
-            bcl2fastq_params_slug = sample_tab.loc[sample_tab.library == wildcards.library_name,'bcl2fastq_params_slug'].min())
-    output: "{library_name}/sequencing_run_info/Stats.json"
+    input:  stats = lambda wildcards: expand(config["run_name"] + "/{bcl2fastq_params_slug}/Stats/Stats.json",bcl2fastq_params_slug = sample_tab.loc[sample_tab.library == wildcards.library_name,'bcl2fastq_params_slug'].min())[0]
+    output: stats = "{library_name}/sequencing_run_info/Stats.json"
     script: "../wrappers/copy_stats/script.py"
 
 rule fastq_mv:
