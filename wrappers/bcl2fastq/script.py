@@ -43,7 +43,7 @@ if "config[run_sequencer_type]" == "NovaSeq":
 else:
   bcl2fastq_args_staged_bcl_dir = bcl_run_dir
 
-fastq_ouput_dir = os.path.dirname(snakemake.input.samplesheet_csv)
+fastq_ouf.writeput_dir = os.path.dirname(snakemake.input.samplesheet_csv)
 
 command = "bcl2fastq -R " + bcl2fastq_args_staged_bcl_dir \
                  + " -o " + fastq_ouput_dir \
