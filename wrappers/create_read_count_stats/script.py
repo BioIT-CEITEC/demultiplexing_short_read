@@ -4,12 +4,12 @@
 import subprocess
 
 
-if snakemake.params.paired > 0:
+if snakemake.params.config["library_output"][library_output]["lib_reverse_read_length"] > 0:
     read_pair_tags = "_R1"
 else:
     read_pair_tags = ""
 
-sample_dict = dict(snakemake.params.sample_dict)
+sample_dict = dict(snakemake.params.config["library_output"][library_output]["samples"])
 sample_list, lines_list, dict_list = [], [], []
 
 # prepare input file for counting - only SE or R1 samples
