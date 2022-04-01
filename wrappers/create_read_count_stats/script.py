@@ -32,4 +32,4 @@ dictionary = {"ConversionResults":{"DemuxResults":dict_list}}
 
 
 with open(str(snakemake.output), 'w') as f:
-    json.dump(dictionary,f,indent = 6)
+    json.dump(dictionary,f,indent = 4)
