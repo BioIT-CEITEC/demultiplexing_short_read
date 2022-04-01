@@ -25,10 +25,17 @@ for i in range(0,len(sample_list)):
     lines_list.append(int(n_lines))
 
 # create dictionary in json format
-for i, name in enumerate(sample_dict.keys()):
-    tmp = {"SampleId":sample_dict[name]["sample_name"],"IndexMetrics":[{"IndexSequence":sample_dict[name]["i7_sequence"]+"+"+sample_dict[name]["i5_sequence"]}],"NumberReads" : lines_list[i]}
-    dict_list.append(tmp)
-dictionary = {"ConversionResults":[{"DemuxResults":dict_list}]}
+if not "i5_sequence" in sample_dict:
+    for i, name in enumerate(sample_dict.keys()):
+        tmp = {"SampleId": sample_dict[name]["sample_name"], "IndexMetrics": [{"IndexSequence": sample_dict[name]["i7_sequence"]}],"NumberReads": lines_list[i]}
+        dict_list.append(tmp)
+    dictionary = {"ConversionResults": [{"DemuxResults": dict_list}]}
+
+else:
+    for i, name in enumerate(sample_dict.keys()):
+        tmp = {"SampleId": sample_dict[name]["sample_name"], "IndexMetrics": [{"IndexSequence": sample_dict[name]["i7_sequence"] + "+" + sample_dict[name]["i5_sequence"]}],"NumberReads": lines_list[i]}
+        dict_list.append(tmp)
+    dictionary = {"ConversionResults": [{"DemuxResults": dict_list}]}
 
 
 with open(str(snakemake.output), 'w') as f:
