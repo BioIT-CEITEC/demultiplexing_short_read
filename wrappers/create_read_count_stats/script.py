@@ -2,7 +2,7 @@
 # wrapper for rule: create_read_count_stats
 #############################################################
 import subprocess
-
+import json
 
 if snakemake.params.config["library_output"][snakemake.params.library_output]["lib_reverse_read_length"] > 0:
     read_pair_tags = "_R1"
@@ -32,4 +32,4 @@ dictionary = {"ConversionResults":{"DemuxResults":dict_list}}
 
 
 with open(str(snakemake.output), 'w') as f:
-    f.write(str(dictionary))
+    json.dump(dictionary,f,indent = 6)
