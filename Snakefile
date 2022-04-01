@@ -42,7 +42,7 @@ sample_tab["slug_id"] = sample_tab.groupby("bcl2fastq_params_slug").transform(la
 if "library_output" in config:
     library_output = list(config["library_output"].keys())[0]
 else:
-    library_output = ""
+    library_output = "-"
 
 ##### wildcard_constraints #####
 wildcard_constraints:
