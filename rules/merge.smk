@@ -1,4 +1,3 @@
-
 rule merge:
     output: res_file = library_output + "/raw_fastq/{filename}",
     shell:
