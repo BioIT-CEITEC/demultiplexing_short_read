@@ -4,6 +4,7 @@ rule merge:
     shell:
         "cat */raw_fastq/{wildcards.filename} > {output.res_file}"
 
+
 rule create_read_count_stats:
     input: all_sample_inputs,
     output: library_output+"/sequencing_run_info/Stats.json"

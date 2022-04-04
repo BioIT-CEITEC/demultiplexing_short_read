@@ -77,7 +77,3 @@ include: "rules/merge.smk"
 include: "rules/fastq_prepare.smk"
 include: "rules/bcl2fastq.smk"
 
-
-
-
-

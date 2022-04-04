@@ -4,6 +4,7 @@
 import subprocess
 import json
 
+
 if snakemake.params.config["library_output"][snakemake.params.library_output]["lib_reverse_read_length"] > 0:
     read_pair_tags = "_R1"
 else:
