@@ -9,7 +9,6 @@ rule create_samplesheet:
             run_reverse_read_length = config["run_reverse_read_length"]
     script: "../wrappers/create_samplesheet/script.py"
 
-
 rule bcl2fastq:
     input:  run_complete_check = expand("{run_dir}/RTAComplete.txt",run_dir = config["run_dir"]),
             samplesheet_csv = config["run_name"] + "/{bcl2fastq_params_slug}/run_samplesheet.csv"

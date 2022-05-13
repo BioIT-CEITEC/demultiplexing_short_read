@@ -58,7 +58,7 @@ command = "bcl2fastq -R " + bcl2fastq_args_staged_bcl_dir \
                  + " --barcode-mismatches " + str(barcode_mismatches) \
                  + " --minimum-trimmed-read-length " + str(MTRL) \
                  + " --mask-short-adapter-reads " + str(MSAR) \
-                 + str(additional_options) \
+                 + " " + str(additional_options) \
                  + " --fastq-compression-level " + str(COMP_LVL) \
                  + " >> " + log_filename + " 2>&1"
 f = open(log_filename, 'at')
