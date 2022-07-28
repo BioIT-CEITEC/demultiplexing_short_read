@@ -43,7 +43,8 @@
           "IDT": "IDT",
           "BRB": "BRB",
           "LYNX": "LYNX",
-          "Qiaseq": "Qiaseq"
+          "Qiaseq": "Qiaseq",
+          "TruSight_Oncology": "TruSight Oncology UMI"
         }
       }
     },
