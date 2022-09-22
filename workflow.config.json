@@ -6,7 +6,8 @@
     "type":"run_demultiplexing",
     "inputs":"{run_dir}/*",
     "outputs":[
-      "raw_fastq/{sample}*fastq*"
+      "raw_fastq/{sample}*fastq*",
+      "sequencing_run_info/Stats.json"
     ],
     "run_outputs":[
       "{library}/sequencing_run_info/*"
