@@ -2,12 +2,19 @@
 # wrapper for rule: bcl2fastq
 ######################################
 import os
+import subprocess
 from snakemake.shell import shell
+shell.executable("/bin/bash")
 
 log_filename = str(snakemake.log)
 
 f = open(log_filename, 'wt')
 f.write("\n##\n## RULE: bcl2fastq \n##\n")
+f.close()
+
+version = str(subprocess.Popen("conda list 2>&1", shell=True, stdout=subprocess.PIPE).communicate()[0], 'utf-8')
+f = open(log_filename, 'at')
+f.write("## CONDA: "+version+"\n")
 f.close()
 
 library_configs = snakemake.params.library_configs
@@ -61,6 +68,14 @@ command = "bcl2fastq -R " + bcl2fastq_args_staged_bcl_dir \
                  + " " + str(additional_options) \
                  + " --fastq-compression-level " + str(COMP_LVL) \
                  + " >> " + log_filename + " 2>&1"
+f = open(log_filename, 'at')
+f.write("## COMMAND: "+command+"\n")
+f.close()
+shell(command)
+
+command = "multiqc -f -z -n "+snakemake.output.html+\
+          " "+snakemake.output.stats+\
+          " >> "+log_filename+" 2>&1"
 f = open(log_filename, 'at')
 f.write("## COMMAND: "+command+"\n")
 f.close()

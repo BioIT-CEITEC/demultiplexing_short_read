@@ -14,6 +14,8 @@ rule bcl2fastq:
             samplesheet_csv = config["run_name"] + "/{bcl2fastq_params_slug}/run_samplesheet.csv"
     output: demultiplex_complete_check = config["run_name"] + "/{bcl2fastq_params_slug}/Reports/html/index.html",
             stats = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/Stats.json",
+            html  = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc.html",
+            mzip  = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc_data.zip",
     params: library_configs = lambda wildcards: {lib_name:config["libraries"][lib_name] for lib_name in set(sample_tab[sample_tab["bcl2fastq_params_slug"] == wildcards.bcl2fastq_params_slug].library)}
     log:    config["run_name"] + "/{bcl2fastq_params_slug}/bcl2fastq.log"
     params: library_configs = lambda wildcards: {lib_name:config["libraries"][lib_name] for lib_name in set(sample_tab[sample_tab["bcl2fastq_params_slug"] == wildcards.bcl2fastq_params_slug].library)}
@@ -21,8 +23,13 @@ rule bcl2fastq:
     script: "../wrappers/bcl2fastq/script.py"
 
 rule stats_copy:
-    input:  stats = lambda wildcards: expand(config["run_name"] + "/{bcl2fastq_params_slug}/Stats/Stats.json",bcl2fastq_params_slug = sample_tab.loc[sample_tab.library == wildcards.library_name,'bcl2fastq_params_slug'].min())[0]
-    output: stats = "{library_name}/sequencing_run_info/Stats.json"
+    input:  stats = lambda wildcards: expand(config["run_name"] + "/{bcl2fastq_params_slug}/Stats/Stats.json", bcl2fastq_params_slug = sample_tab.loc[sample_tab.library == wildcards.library_name,'bcl2fastq_params_slug'].min())[0],
+            html  = lambda wildcards: expand(config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc.html", bcl2fastq_params_slug = sample_tab.loc[sample_tab.library == wildcards.library_name,'bcl2fastq_params_slug'].min())[0],
+            mzip  = lambda wildcards: expand(config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc_data.zip", bcl2fastq_params_slug = sample_tab.loc[sample_tab.library == wildcards.library_name,'bcl2fastq_params_slug'].min())[0],
+    output: stats = "{library_name}/sequencing_run_info/Stats.json",
+            html  = "{library_name}/sequencing_run_info/bcl2fastq_multiqc.html",
+            mzip  = "{library_name}/sequencing_run_info/bcl2fastq_multiqc_data.zip",
+    log:    run = "{library_name}/sequencing_run_info/stats_copy.log",
     script: "../wrappers/copy_stats/script.py"
 
 rule fastq_mv:

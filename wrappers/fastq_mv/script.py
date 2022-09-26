@@ -3,6 +3,7 @@
 #############################################################
 import os
 from snakemake.shell import shell
+shell.executable("/bin/bash")
 
 for in_file, out_file in zip(snakemake.params.fastqs_in, snakemake.output.fastqs_out):
     if os.path.isfile(in_file):
