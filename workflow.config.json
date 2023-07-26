@@ -10,7 +10,7 @@
     ],
     "run_parameters": {
       "cpu": 30,
-      "memory": 64
+      "memory": 120
     },
     "run_outputs":[
       "{library}/sequencing_run_info/*"
