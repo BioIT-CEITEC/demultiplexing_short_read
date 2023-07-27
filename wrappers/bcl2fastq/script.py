@@ -27,7 +27,7 @@ WRIT_TH = 10
 ADAPT_STR = 0.9
 MTRL = 2
 MSAR = 2
-COMP_LVL = 4
+COMP_LVL = 9
 
 # base masking for special UMI processing
 if len(bcl2fastq_setting["base_mask_field"]) == 0:
@@ -50,9 +50,19 @@ if "config[run_sequencer_type]" == "NovaSeq":
 else:
   bcl2fastq_args_staged_bcl_dir = bcl_run_dir
 
+tmp_run_data = os.path.join(snakemake.params.tmp_dir,"run_tmp_data")
+if not os.path.exists(tmp_run_data):
+    os.makedirs(tmp_run_data)
+
+command = "cp -r " + bcl2fastq_args_staged_bcl_dir + "/* " + tmp_run_data
+f = open(log_filename, 'at')
+f.write("## COMMAND: "+command+"\n")
+f.close()
+shell(command)
+
 fastq_output_dir = os.path.dirname(snakemake.input.samplesheet_csv)
 
-command = "bcl2fastq -R " + bcl2fastq_args_staged_bcl_dir \
+command = "bcl2fastq -R " + tmp_run_data \
                  + " -o " + fastq_output_dir \
                  + no_lane_splitting \
                  + bases_mask_text \

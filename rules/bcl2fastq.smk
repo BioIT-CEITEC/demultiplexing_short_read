@@ -16,7 +16,8 @@ rule bcl2fastq:
             stats = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/Stats.json",
             html  = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc.html",
             mzip  = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc_data.zip",
-    params: library_configs = lambda wildcards: {lib_name:config["libraries"][lib_name] for lib_name in set(sample_tab[sample_tab["bcl2fastq_params_slug"] == wildcards.bcl2fastq_params_slug].library)}
+    params: library_configs = lambda wildcards: {lib_name:config["libraries"][lib_name] for lib_name in set(sample_tab[sample_tab["bcl2fastq_params_slug"] == wildcards.bcl2fastq_params_slug].library)},
+            tmp_dir = GLOBAL_TMPD_PATH
     log:    config["run_name"] + "/{bcl2fastq_params_slug}/bcl2fastq.log"
     params: library_configs = lambda wildcards: {lib_name:config["libraries"][lib_name] for lib_name in set(sample_tab[sample_tab["bcl2fastq_params_slug"] == wildcards.bcl2fastq_params_slug].library)}
     conda: "../wrappers/bcl2fastq/env.yaml"

@@ -5,6 +5,7 @@ import os
 
 min_version("5.18.0")
 configfile: "config.json"
+GLOBAL_TMPD_PATH = config["globalTmpdPath"]
 
 #Files subdirectory check for NovaSeq outputs
 if os.path.exists(config["run_dir"] + "/Files/RTAComplete.txt"):
