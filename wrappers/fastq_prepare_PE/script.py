@@ -124,36 +124,49 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
         shell(command)
 
     elif umi == "Qiaseq":
-        if "externally_sequenced_fake" in run_name:
-            command = "cp -T "+in_filename+" "+ snakemake.output.R1
-        else:
-            command = "mv -T "+in_filename+" "+ snakemake.output.R1
-
-        f = open(log_filename, 'at')
-        f.write("## COMMAND: "+command+"\n")
-        f.close()
+        out_R1 = snakemake.output.R1[:-3]
+        out_R2 = snakemake.output.R2[:-3]
+        
+        command = "(paste <(zcat "+in_filename+") <(zcat "+in_filename_R2+") |"+\
+                  " awk '{{ if(NR%4==1) {{split($1,head_R1,\" \"); split($2,head_R2,\" \")}}"+\
+                  " else if(NR%4==2) {{umi=substr($2,1,12); print head_R1[1] \"_\" umi \" \" head_R1[2] \"\\n\" $1 > out1;"+\
+                  " print head_R2[1] \"_\" umi \" \" head_R2[2] \"\\n\" substr($2,24) > out2}} else if(NR%4==0) {{print $1 > out1;"+\
+                  " print substr($2,24) > out2}} else {{print $1 > out1; print $2 > out2}} }}' FS='\\t' out1="+out_R1+" out2="+out_R2+\
+                  " && gzip -f "+out_R1+" "+out_R2+") 2>> "+log_filename
+        with open(log_filename, 'at') as f:
+            f.write("## COMMAND: "+command+"\n")
         shell(command)
 
-        umi_file = os.path.dirname(snakemake.output.R2)+ "/"+sample+".UMI.fastq"
-        shell("gunzip "+in_filename_R2)
-        in_filename_R2 = in_filename_R2.replace(".gz","")
+        #if "externally_sequenced_fake" in run_name:
+        #    command = "cp -T "+in_filename+" "+ snakemake.output.R1
+        #else:
+        #    command = "mv -T "+in_filename+" "+ snakemake.output.R1
 
-        f_R2 = open(snakemake.output.R2.replace(".gz",""), 'w')
-        f_umi = open(umi_file, 'w')
+        #f = open(log_filename, 'at')
+        #f.write("## COMMAND: "+command+"\n")
+        #f.close()
+        #shell(command)
 
-        with(open(in_filename_R2,'r')) as f_in:
-            for line_num,line in enumerate(f_in):
-                if line_num % 2 == 1:
-                    f_umi.write(line[:12]+"\n")
-                    f_R2.write(line[24:])
-                else:
-                    f_umi.write(line)
-                    f_R2.write(line)
+        #umi_file = os.path.dirname(snakemake.output.R2)+ "/"+sample+".UMI.fastq"
+        #shell("gunzip "+in_filename_R2)
+        #in_filename_R2 = in_filename_R2.replace(".gz","")
 
-        f_umi.close()
-        f_R2.close()
-        shell("gzip " + snakemake.output.R2.replace(".gz",""))
-        shell("rm "+in_filename_R2)
+        #f_R2 = open(snakemake.output.R2.replace(".gz",""), 'w')
+        #f_umi = open(umi_file, 'w')
+
+        #with(open(in_filename_R2,'r')) as f_in:
+        #    for line_num,line in enumerate(f_in):
+        #        if line_num % 2 == 1:
+        #            f_umi.write(line[:12]+"\n")
+        #            f_R2.write(line[24:])
+        #        else:
+        #            f_umi.write(line)
+        #            f_R2.write(line)
+
+        #f_umi.close()
+        #f_R2.close()
+        #shell("gzip " + snakemake.output.R2.replace(".gz",""))
+        #shell("rm "+in_filename_R2)
 
     elif umi == "CS_UMI_sep_file":
 
