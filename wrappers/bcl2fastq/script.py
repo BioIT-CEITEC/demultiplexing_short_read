@@ -54,7 +54,7 @@ tmp_run_data = os.path.join(snakemake.params.tmp_dir,"run_tmp_data")
 if not os.path.exists(tmp_run_data):
     os.makedirs(tmp_run_data)
 
-command = "cp -r " + bcl2fastq_args_staged_bcl_dir + "/* " + tmp_run_data
+command = "rsync -rt " + bcl2fastq_args_staged_bcl_dir + "/* " + tmp_run_data + " >> " + log_filename + " 2>&1"
 f = open(log_filename, 'at')
 f.write("## COMMAND: "+command+"\n")
 f.close()
