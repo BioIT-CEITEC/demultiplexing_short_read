@@ -66,16 +66,34 @@ if os.stat(snakemake.input.in_filename).st_size != 0:
                      out_SE.write(header_R1.split(" ")[0] + "_" + R2_line.strip() + " " + header_R1.split(" ")[1] + "\n" + R1_line)
                  else:
                      out_SE.write(R1_line)
+                     
     elif umi == "CS_UMI":
         out_SE = snakemake.output.fastq[:-3]
 
         in_filename_R2 = re.sub("_R1_","_R2_",in_filename)
         
-        command = "(paste <(zcat "+in_filename+") <(zcat "+in_filename_R2+") | awk '{{ if(NR%4==1) {{split($1,head_R1,\" \")}} else if(NR%4==2) {{umi=substr($1,1,3)substr($2,1,3); print head_R1[1] \"_\" umi \" \" head_R1[2] \"\\n\" substr($1,7) > out}} else if(NR%4==0) {{print substr($1,7) > out}} else {{print $1 > out}} }}' FS='\\t' out="+out_SE+" && gzip -f "+out_SE+") 2>> "+log_filename
+        command = "(paste <(zcat "+in_filename+") <(zcat "+in_filename_R2+") |"+\
+                  " awk '{{ if(NR%4==1) {{split($1,head_R1,\" \")}}"+\
+                  " else if(NR%4==2) {{umi=substr($1,1,3)substr($2,1,3); print head_R1[1] \"_\" umi \" \" head_R1[2] \"\\n\" substr($1,7) > out}}"+\
+                  " else if(NR%4==0) {{print substr($1,7) > out}} else {{print $1 > out}} }}' FS='\\t' out="+out_SE+\
+                  " && gzip -f "+out_SE+") 2>> "+log_filename
         with open(log_filename, 'at') as f:
             f.write("## COMMAND: "+command+"\n")
         shell(command)
 
+    elif umi == "TruSight_Oncology":
+        out_SE = snakemake.output.fastq[:-3]
+
+        in_filename_R2 = re.sub("_R1_","_R2_",in_filename)
+        
+        command = "(paste <(zcat "+in_filename+") <(zcat "+in_filename_R2+") |"+\
+                  " awk '{{ if(NR%4==1) {{split($1,head_R1,\" \")}}"+\
+                  " else if(NR%4==2) {{umi=substr($1,1,6)substr($2,1,6); print head_R1[1] \"_\" umi \" \" head_R1[2] \"\\n\" substr($1,10) > out}}"+\
+                  " else if(NR%4==0) {{print substr($1,10) > out}} else {{print $1 > out}} }}' FS='\\t' out="+out_SE+\
+                  " && gzip -f "+out_SE+") 2>> "+log_filename
+        with open(log_filename, 'at') as f:
+            f.write("## COMMAND: "+command+"\n")
+        shell(command)
 
     elif umi == "Quantseq FWD":
         command = "umi_tools extract --extract-method=string"+\
