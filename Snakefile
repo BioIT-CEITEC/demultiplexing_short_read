@@ -21,8 +21,7 @@ def get_panda_sample_tab_from_config_one_lib(lib_name):
                             str(config["libraries"][lib_name]["R2FastQMask"]) + "" + \
                             str(config["libraries"][lib_name]["I1Mask"]) + "" + \
                             str(config["libraries"][lib_name]["I2Mask"]) + "" + \
-                            str(config["libraries"][lib_name]["UmiMask"]) + "" + \
-                            str(config["libraries"][lib_name]["no_lane_splitting"]))
+                            str(config["libraries"][lib_name]["UmiMask"]))
     sample_tab["bcl2fastq_params_slug"] = re.sub("[^a-zA-Z0-9_-]","_",bcl2fastq_params_slug)
     return sample_tab
 
