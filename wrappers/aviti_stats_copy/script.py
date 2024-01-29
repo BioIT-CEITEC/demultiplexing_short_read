@@ -15,7 +15,6 @@ f.close()
 #f.write("## CONDA: "+version+"\n")
 #f.close()
 
-stats_dir = os.path.dirname(snakemake.input.stats)
 out_dir_name = os.path.dirname(snakemake.output.stats)
 
 
@@ -25,13 +24,14 @@ f.write("## COMMAND: "+command+"\n")
 f.close()
 shell(command)
 
-command = "cp " + stats_dir + "/* " + out_dir_name + " 2>> "+snakemake.log.run
-f = open(snakemake.log.run, 'at')
-f.write("## COMMAND: "+command+"\n")
-f.close()
-shell(command)
+for filename in snakemake.input.files:
+    command = "cp " + filename + " " + out_dir_name + "/ 2>> "+snakemake.log.run
+    f = open(snakemake.log.run, 'at')
+    f.write("## COMMAND: "+command+"\n")
+    f.close()
+    shell(command)
 
-command = "cp -r " + stats_dir + "/../Reports " + out_dir_name+" 2>> "+ snakemake.log.run
+command = "cp " + snakemake.params.stats_json_file + " " + snakemake.output.stats + " 2>> "+snakemake.log.run
 f = open(snakemake.log.run, 'at')
 f.write("## COMMAND: "+command+"\n")
 f.close()

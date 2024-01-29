@@ -5,8 +5,14 @@
     "label":"Demultiplexing of short-read run",
     "type":"run_demultiplexing",
     "inputs":"{run_dir}/*",
-    "outputs":[
-      "raw_fastq/{sample}*fastq*"
+    "outputs": [
+      "raw_fastq/{sample}*fastq*",
+      "qc_reports/*",
+      "logs/*"
+    ],
+    "report_index": "qc_reports/raw_fastq_multiqc.html",
+    "reports": [
+      "qc_reports/raw_fastq_multiqc.html"
     ],
     "run_parameters": {
       "cpu": 30,
@@ -35,17 +41,97 @@
       "barcode_mismatches": {
        "label": "barcode_mismatches",
         "type": "int",
-        "default": 0
+        "default": 1
       },
-      "base_mask_field": {
-       "label": "Base mask field",
+      "R1FastQMask": {
+       "label": "R1 Base mask field",
         "type": "string",
         "default": ""
       },
-      "no_lane_splitting": {
-        "label": "No lane splitting",
+      "R2FastQMask": {
+       "label": "R2 Base mask field",
+        "type": "string",
+        "default": ""
+      },
+      "I1Mask": {
+       "label": "I1 Base mask field",
+        "type": "string",
+        "default": ""
+      },
+      "I2Mask": {
+       "label": "I2 Base mask field",
+        "type": "string",
+        "default": ""
+      },
+      "UmiMask": {
+       "label": "UMI Base mask field",
+        "type": "string",
+        "default": ""
+      },
+      "select_lanes": {
+        "label": "Select specific Lanes the library is loaded to.",
         "type": "bool",
-        "default": true
+        "default": false
+      },
+      "use_lane1": {
+        "label": "Use Lane1",
+        "info": "Demultiplex this library from Lane1 if it is available.",
+        "type": "bool",
+        "default": true,
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "select_lanes": true
+            }
+          }
+        }
+      },
+      "use_lane2": {
+        "label": "Use Lane2",
+        "info": "Demultiplex this library from Lane2 if it is available.",
+        "type": "bool",
+        "default": true,
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "select_lanes": true
+            }
+          }
+        }
+      },
+      "use_lane3": {
+        "label": "Use Lane3",
+        "info": "Demultiplex this library from Lane3 if it is available.",
+        "type": "bool",
+        "default": true,
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "select_lanes": true
+            }
+          }
+        }
+      },
+      "use_lane4": {
+        "label": "Use Lane4",
+        "info": "Demultiplex this library from Lane4 if it is available.",
+        "type": "bool",
+        "default": true,
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "select_lanes": true
+            }
+          }
+        }
       },
       "additional_options": {
         "label": "Additional options to bcl2fastq call",

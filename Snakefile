@@ -15,10 +15,14 @@ if os.path.exists(config["run_dir"] + "/Files/RTAComplete.txt"):
 def get_panda_sample_tab_from_config_one_lib(lib_name):
     sample_tab = pd.DataFrame.from_dict(config["libraries"][lib_name]["samples"],orient="index")
     sample_tab["library"] = lib_name
-    bcl2fastq_params_slug = "bcl2fastqslug_" + str(config["libraries"][lib_name]["barcode_mismatches"]) + "" + \
+    bcl2fastq_params_slug = ("bcl2fastqslug_" + str(config["libraries"][lib_name]["barcode_mismatches"]) + "" + \
                             str(config["libraries"][lib_name]["additional_options"]) + "" + \
-                            str(config["libraries"][lib_name]["base_mask_field"]) + "" + \
-                            str(config["libraries"][lib_name]["no_lane_splitting"])
+                            str(config["libraries"][lib_name]["R1FastQMask"]) + "" + \
+                            str(config["libraries"][lib_name]["R2FastQMask"]) + "" + \
+                            str(config["libraries"][lib_name]["I1Mask"]) + "" + \
+                            str(config["libraries"][lib_name]["I2Mask"]) + "" + \
+                            str(config["libraries"][lib_name]["UmiMask"]) + "" + \
+                            str(config["libraries"][lib_name]["no_lane_splitting"]))
     sample_tab["bcl2fastq_params_slug"] = re.sub("[^a-zA-Z0-9_-]","_",bcl2fastq_params_slug)
     return sample_tab
 
@@ -31,12 +35,18 @@ sample_tab = get_panda_sample_tab_from_config(config)
 sample_tab['read_output_count'] = sample_tab.apply(lambda row: 1 if config["run_reverse_read_length"] == 0 else 2, axis=1)
 for lib_name in config["libraries"].keys():
     # Check if base_mask_field is not empty
-    if config["libraries"][lib_name]["base_mask_field"] != "":
+    if config["libraries"][lib_name]["R2FastQMask"] != "":
         # Count the 'y' characters in base_mask_field
-        y_count = config["libraries"][lib_name]["base_mask_field"].lower().count('y')
+        y_count = config["libraries"][lib_name]["R2FastQMask"].upper().count('Y')
         if y_count != 0:
             # Update the DataFrame
-            sample_tab.loc[sample_tab['library'] == lib_name, 'read_output_count'] = y_count
+            sample_tab.loc[sample_tab['library'] == lib_name, 'read_output_count'] = 2
+        else:
+            sample_tab.loc[sample_tab['library'] == lib_name, 'read_output_count'] = 1
+    y_count = config["libraries"][lib_name]["UmiMask"].upper().count('Y')
+    if y_count != 0:
+        # Update the DataFrame
+        sample_tab.loc[sample_tab['library'] == lib_name, 'read_output_count'] += 1
 
 sample_tab = sample_tab.set_index(pd.RangeIndex(start=1,stop=len(sample_tab.index) + 1))
 
@@ -79,38 +89,35 @@ if "merged" in config and config["merged"]:
     # Check for each file type independently
     all_contain_R2 = all_dirs_contain_suffix("_R2.fastq.gz")
     all_contain_R3 = all_dirs_contain_suffix("_R3.fastq.gz")
-    all_contain_R4 = all_dirs_contain_suffix("_R4.fastq.gz")
 
     # Remove files from primary_files based on the checks
     if not all_contain_R2:
         primary_files = [f for f in primary_files if "_R2.fastq.gz" not in f]
     if not all_contain_R3:
         primary_files = [f for f in primary_files if "_R3.fastq.gz" not in f]
-    if not all_contain_R4:
-        primary_files = [f for f in primary_files if "_R4.fastq.gz" not in f]
 
-    all_sample_inputs = [os.path.join(library_output,"raw_fastq",f) for f in primary_files]
+    all_merge_sample_fastqc_files = [os.path.join(library_output,\
+                                      "qc_reports",\
+                                      re.sub("_R..fastq.gz$","",f),\
+                                      "/raw_fastqc/",\
+                                      re.sub(".fastq.gz$","_fastqc.html",f)) for f in primary_files]
     library_names = library_output
     sample_tab = sample_tab.loc[sample_tab.library == primary_lib_name]
 else:
-    "{library}/qc_reports/{sample_name}/raw_fastqc/{sample_name}_{read_num}_fastqc.html"
-    ##### All resulting fastqs #####
-    # single_end_samples = [row["library"] + "/raw_fastq/" + row["sample_name"] + ".fastq.gz" for  index, row in sample_tab.iterrows() if config["libraries"][row["library"]]["lib_reverse_read_length"] == 1]
-    first_read_files = [row["library"] + "/qc_reports/" + row["sample_name"] + "/raw_fastqc/" + row["sample_name"] + "_R1_fastqc.html" for  index, row in sample_tab.iterrows()]
-    second_read_files = [row["library"] + "/qc_reports/" + row["sample_name"]+ "/raw_fastqc/" + row["sample_name"] + "_R2_fastqc.html" for  index, row in sample_tab.iterrows() if config["libraries"][row["library"]]["lib_reverse_read_length"] > 1]
-    third_read_files = [row["library"] + "/qc_reports/" + row["sample_name"] + "/raw_fastqc/" + row["sample_name"] + "_R3_fastqc.html" for index, row in sample_tab.iterrows() if config["libraries"][row["library"]]["lib_reverse_read_length"] > 2]
-    forth_read_files = [row["library"] + "/qc_reports/" + row["sample_name"] + "/raw_fastqc/" + row["sample_name"] + "_R4_fastqc.html" for index, row in sample_tab.iterrows() if config["libraries"][row["library"]]["lib_reverse_read_length"] > 3]
-    all_sample_inputs = first_read_files + second_read_files + third_read_files + forth_read_files
+    sample_file_tab = sample_tab.reindex(sample_tab.index.repeat(sample_tab['read_output_count'])) \
+        .assign(read_num=lambda x: x.groupby(['library', 'sample_name']).cumcount() + 1) \
+        .reset_index(drop=True)
+
     library_names = set(config["libraries"].keys())
 
 rule all:
-    input: fastq_files = all_sample_inputs,
-           stats = expand("{library_name}/sequencing_run_info/Stats.json",library_name = library_names)
+    input: fastq_files = expand("{library}/qc_reports/raw_fastq_multiqc.html",library = library_names),
+           stats = expand("{library}/sequencing_run_info/Stats.json",library = library_names)
 
 ##### Modules #####
 
 include: "rules/merge.smk"
-include: "rules/bcl2fastq.smk"
+include: "rules/demultiplexing.smk"
 include: "rules/fastqc.smk"
-include: "rules/check_adaptors.smk"
+# include: "rules/check_adaptors.smk"
 

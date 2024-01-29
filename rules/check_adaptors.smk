@@ -1,7 +1,9 @@
+
 ## Check adaptors in sample reads
-{library}/raw_fastq/{sample_name}_{read_num}.fastq.gz
 rule merge_adaptors:
-    input:  fastq=expand("{library}/qc_reports/{sample_name}/raw_fastq_minion/{sample_name}_{read_num}.minion.compare",sample=sample_tab.sample_name,pair=read_pair_tags),
+    input:  fastq=expand("{library}/qc_reports/{sample_name}/raw_fastq_minion/{sample_name}_{read_num}.minion.compare",zip,library = sample_file_tab.library\
+                                                                                                                            ,sample_name=sample_file_tab.sample_name\
+                                                                                                                            ,read_num=sample_file_tab.read_num)
     output: tab="qc_reports/raw_fastq_minion_adaptors_mqc.tsv",
     log:    "logs/merge_adaptors.log",
     params: pattern=str("|" * int(config["min_adapter_matches"])),
@@ -38,7 +40,6 @@ rule merge_adaptors:
             cat {params.sequences} | awk '{{if($0 ~ /^>/){{sample=substr($1, 2)}}; if($0 ~ /^[ACGTacgt]/){{print sample,$1}} }}' OFS='\\t' | Rscript -e 'tab=data.table::fread("cat /dev/stdin", sep="\\\\t", header=F);data.table::setnames(tab,"V1","sample");data.table::fwrite(data.table::dcast(tab, sample~V2, fill=0), "{output.tab}", append=T, sep="\\\\t", col.names=T, row.names=F, quote=F)' >> {log} 2>&1
         fi
     """
-
 
 rule check_adaptors:
     input: fastq = "{library}/raw_fastq/{sample_name}_{read_num}.fastq.gz",

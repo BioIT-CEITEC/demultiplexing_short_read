@@ -1,4 +1,62 @@
-if config["run_sequencer_type"] != "AVITI":
+if config["run_sequencer_type"] == "AVITI":
+    rule aviti_create_samplesheet:
+        input:  run_info = expand("{run_dir}/RunParameters.json",run_dir=config["run_dir"]),
+        output: run_manifest = "run_manifest.csv",
+        params: sample_tab = sample_tab,
+                config = config
+        script: "../wrappers/aviti_create_samplesheet/script.py"
+
+    rule aviti_Bases2Fastq:
+        input:  run_complete_check = expand("{run_dir}/RunUploaded.json",run_dir = config["run_dir"]),
+                run_manifest = "run_manifest.csv"
+        output: fastq_files = expand("Samples/{library}/{sample_name}/{sample_name}_R{read_num}.fastq.gz",zip,library = sample_file_tab.library\
+                                                                                                      ,sample_name=sample_file_tab.sample_name\
+                                                                                                      ,read_num=sample_file_tab.read_num),
+                stats = expand("Samples/{library}/{library}_{run_info_suffix}",library = sample_file_tab.library
+                                                                            ,run_info_suffix = ["QC.html","Metrics.csv","RunStats.json","IndexAssignment.csv"])
+                # demultiplex_complete_check = config["run_name"] + "/{bcl2fastq_params_slug}/Reports/html/index.html",
+                # stats = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/Stats.json",
+                # html  = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc.html",
+                # mzip  = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc_data.zip",
+        params: tmp_dir = GLOBAL_TMPD_PATH
+
+        log:    "logs/Bases2Fastq.log"
+        params: library_configs = lambda wildcards: {lib_name:config["libraries"][lib_name] for lib_name in set(sample_tab[sample_tab["bcl2fastq_params_slug"] == wildcards.bcl2fastq_params_slug].library)}
+        conda: "../wrappers/aviti_bases2fastq/env.yaml"
+        script: "../wrappers/aviti_bases2fastq/script.py"
+
+    rule aviti_fastq_mv:
+        input:  "Samples/{library}/{sample_name}/{sample_name}_R{read_num}.fastq.gz"
+        output: "{library}/raw_fastq/{sample_name}_R{read_num}.fastq.gz",
+        shell:
+            "mkdir -p '$(dirname {output})'; mv {input} {output}"
+
+    rule aviti_stats_copy:
+        input:  files = expand("Samples/{{library}}/{{library}}_{run_info_suffix}",run_info_suffix = ["QC.html","Metrics.csv","RunStats.json","IndexAssignment.csv"])
+        output: stats = "{library}/sequencing_run_info/Stats.json",
+        log:    run = "{library}/sequencing_run_info/stats_copy.log",
+        params: stats_json_file = "Samples/{library}/{library}_RunStats.json"
+        script: "../wrappers/aviti_stats_copy/script.py"
+
+    # rule illumina_fastq_mv:
+    #     input:  demultiplex_complete_check = expand(config["run_name"] + "/{bcl2fastq_params_slug}/Reports/html/index.html",bcl2fastq_params_slug = list(pd.unique(sample_tab['bcl2fastq_params_slug']))),
+    #     output: fastqs_out = expand(config["run_name"] + "/{sample}_S{sample_index}_R1_001.fastq.gz",zip,sample = sample_tab.sample_name\
+    #                                                                             ,sample_index = range(1,len(sample_tab.index)+1))
+    #     params: fastqs_in = expand(config["run_name"] + "/{bcl2fastq_params_slug}/{sample}_S{sample_index}_R1_001.fastq.gz",zip\
+    #                                                                             ,sample = sample_tab.sample_name\
+    #                                                                             ,sample_index = sample_tab.slug_id\
+    #                                                                             ,bcl2fastq_params_slug = sample_tab.bcl2fastq_params_slug)
+    #     script: "../wrappers/fastq_mv/script.py"
+    #
+    # rule illumina_fastq_mv_to_lib:
+    #     input:  lambda wildcards: expand("{run_name}/{sample_name}_S{sample_index}_{read_num}_001.fastq.gz",run_name = config["run_name"]\
+    #                     ,sample_name = wildcards.sample_name \
+    #                     ,sample_index = sample_tab.loc[(sample_tab["sample_name"] == wildcards.sample) & (sample_tab.library == wildcards.library)].index[0]\
+    #                     ,read_num = wildcards.read_num)[0]
+    #     output: "{library}/raw_fastq/{sample_name}_{read_num}.fastq.gz",
+    #     shell:
+    #         "mv {input} {output}"
+else:
     rule illumina_create_samplesheet:
         input:  run_info = expand("{run_dir}/RunInfo.xml",run_dir=config["run_dir"]),
         output: samplesheet_csv = config["run_name"] + "/{bcl2fastq_params_slug}/run_samplesheet.csv",
