@@ -19,7 +19,7 @@ if config["run_sequencer_type"] == "AVITI":
                 # html  = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc.html",
                 # mzip  = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc_data.zip",
         params: tmp_dir = GLOBAL_TMPD_PATH
-
+        threads: 30
         log:    "logs/Bases2Fastq.log"
         params: library_configs = lambda wildcards: {lib_name:config["libraries"][lib_name] for lib_name in set(sample_tab[sample_tab["bcl2fastq_params_slug"] == wildcards.bcl2fastq_params_slug].library)}
         conda: "../wrappers/aviti_bases2fastq/env.yaml"
