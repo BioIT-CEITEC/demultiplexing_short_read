@@ -6,13 +6,7 @@
     "type":"run_demultiplexing",
     "inputs":"{run_dir}/*",
     "outputs": [
-      "raw_fastq/{sample}*fastq*",
-      "qc_reports/*",
-      "logs/*"
-    ],
-    "report_index": "qc_reports/raw_fastq_multiqc.html",
-    "reports": [
-      "qc_reports/raw_fastq_multiqc.html"
+      "raw_fastq/{sample}*fastq*"
     ],
     "run_parameters": {
       "cpu": 30,

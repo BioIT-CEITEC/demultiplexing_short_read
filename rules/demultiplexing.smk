@@ -38,6 +38,58 @@ if config["run_sequencer_type"] == "AVITI":
         params: stats_json_file = "Samples/{library}/{library}_RunStats.json"
         script: "../wrappers/aviti_stats_copy/script.py"
 
+elif config["run_sequencer_type"] == "MGI":
+    rule mgi_create_samplesheet:
+        input: run_info=expand("{run_dir}/{{lane}}/BioInfo.csv",run_dir=config["run_dir"]),
+        output: run_manifest="mgi_sample_sheet_{lane}.txt"
+        params: sample_tab=sample_tab,
+            config=config
+        script: "../wrappers/mgi_create_samplesheet/script.py"
+
+    rule mgi_calDemux:
+        input:  run_manifest="mgi_sample_sheet_{lane}.txt"
+        output: fastq_files = expand("demux/FS2000/{{lane}}/FS2000_{{lane}}_{sample_name}_{read_num}.fq.gz",zip \
+                                            ,sample_name=sample_file_tab.sample_name \
+                                            ,read_num=sample_file_tab.read_num),
+                stats=expand("demux/FS2000/{{lane}}/{stat_filenames}.txt" \
+                                            ,stat_filenames=["SequenceStat", "BarcodeStat"])
+        # demultiplex_complete_check = config["run_name"] + "/{bcl2fastq_params_slug}/Reports/html/index.html",
+        # stats = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/Stats.json",
+        # html  = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc.html",
+        # mzip  = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc_data.zip",
+        params: tmp_dir=GLOBAL_TMPD_PATH
+        threads: 30
+        log: "logs/calDemux_{lane}.log"
+        conda: "../wrappers/mgi_calDemux/env.yaml"
+        script: "../wrappers/mgi_calDemux/script.py"
+
+
+    def mgi_cat_lane_fastq_input(wildcards):
+        return expand("demux/FS2000/{lane}/FS2000_{lane}_"+wildcards.sample_name+"_"+wildcards.read_num+".fq.gz" \
+            ,lane = per_library_used_lanes[wildcards.library])
+
+    rule mgi_cat_lane_fastq:
+        input: mgi_cat_lane_fastq_input
+        output: "{library}/raw_fastq/{sample_name}_R{read_num}.fastq.gz",
+        threads: 30
+        shell:
+            "mkdir -p '$(dirname {output})'; cat {input} > {output}"
+
+
+    def mgi_stats_copy_input(wildcards):
+        return expand("demux/FS2000/{lane}/{stat_filenames}.txt" \
+            ,lane = per_library_used_lanes[wildcards.library]
+            ,stat_filenames = ["SequenceStat", "BarcodeStat"])
+
+    rule mgi_stats_copy:
+        input: mgi_stats_copy_input
+        output: "{library}/sequencing_run_info/Stats.json",
+        log: run="{library}/sequencing_run_info/stats_copy.log",
+        params: stats_json_file="Samples/{library}/{library}_RunStats.json"
+        # script: "../wrappers/mgi_stats_copy/script.py"
+        shell:
+            "mkdir -p '$(dirname {output})'; cat {input} > {output}"
+
     # rule illumina_fastq_mv:
     #     input:  demultiplex_complete_check = expand(config["run_name"] + "/{bcl2fastq_params_slug}/Reports/html/index.html",bcl2fastq_params_slug = list(pd.unique(sample_tab['bcl2fastq_params_slug']))),
     #     output: fastqs_out = expand(config["run_name"] + "/{sample}_S{sample_index}_R1_001.fastq.gz",zip,sample = sample_tab.sample_name\
