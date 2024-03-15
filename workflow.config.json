@@ -4,7 +4,10 @@
     "version": 1.0,
     "label":"Demultiplexing of short-read run",
     "type":"run_demultiplexing",
-    "inputs":"{run_dir}/*",
+    "inputs":[
+      "Raw/{run_dir}",
+      "{run_dir}/L01/BioInfo.csv"
+    ],
     "outputs": [
       "raw_fastq/{sample}*fastq*"
     ],
