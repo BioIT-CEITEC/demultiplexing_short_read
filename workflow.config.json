@@ -5,8 +5,6 @@
     "label":"Demultiplexing of short-read run",
     "type":"run_demultiplexing",
     "inputs":"{run_dir}/*",
-//          "../Raw/{run_dir_name}/*",
-//      "{run_dir}/L01/BioInfo.csv"
     "outputs": [
       "raw_fastq/{sample}*fastq*"
     ],
