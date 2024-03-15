@@ -5,7 +5,7 @@
     "label":"Demultiplexing of short-read run",
     "type":"run_demultiplexing",
     "inputs":[
-      "Raw/{run_dir}",
+      "Raw/{run_dir}/",
       "{run_dir}/L01/BioInfo.csv"
     ],
     "outputs": [
