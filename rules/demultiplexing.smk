@@ -40,7 +40,7 @@ if config["run_sequencer_type"] == "AVITI":
 
 elif config["run_sequencer_type"] == "MGI":
     rule mgi_create_samplesheet:
-        input: run_info=expand("{run_dir}/{{lane}}/BioInfo.csv",run_dir=config["run_dir"]),
+        input: run_info=expand("{run_dir}/L01/BioInfo.csv",run_dir=config["run_dir"]),
         output: run_manifest="mgi_sample_sheet_{lane}.txt"
         params: sample_tab=sample_tab,
             config=config

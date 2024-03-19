@@ -35,121 +35,133 @@
   "gui_params" : {
     "primary": {},
     "detailed": {
+      "specify_demultiplexing_detailed": {
+        "label": "Specify demultiplexing details.",
+        "type": "bool",
+        "default": false
+      },
       "barcode_mismatches": {
        "label": "barcode_mismatches",
         "type": "int",
-        "default": 1
+        "default": 1,
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
+            }
+          }
+        }
       },
-      "R1FastQMask": {
+      "AVITI_R1FastQMask": {
        "label": "R1 Base mask field",
         "type": "string",
-        "default": ""
+        "default": "",
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
+            }
+          }
+        }
       },
-      "R2FastQMask": {
+      "AVITI_R2FastQMask": {
        "label": "R2 Base mask field",
         "type": "string",
-        "default": ""
+        "default": "",
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
+            }
+          }
+        }
       },
-      "I1Mask": {
+      "AVITI_I1Mask": {
        "label": "I1 Base mask field",
         "type": "string",
-        "default": ""
+        "default": "",
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
+            }
+          }
+        }
       },
-      "I2Mask": {
+      "AVITI_I2Mask": {
        "label": "I2 Base mask field",
         "type": "string",
-        "default": ""
+        "default": "",
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
+            }
+          }
+        }
       },
-      "UmiMask": {
+      "AVITI_UmiMask": {
        "label": "UMI Base mask field",
         "type": "string",
-        "default": ""
-      },
-      "select_lanes": {
-        "label": "Select specific Lanes the library is loaded to.",
-        "type": "bool",
-        "default": false
-      },
-      "use_lane1": {
-        "label": "Use Lane1",
-        "info": "Demultiplex this library from Lane1 if it is available.",
-        "type": "bool",
-        "default": true,
+        "default": "",
         "conditions": {
           "relevance": {
             "operand": "equal",
             "negation": false,
             "values": {
-              "select_lanes": true
+              "specify_demultiplexing_detailed": true
             }
           }
         }
       },
-      "use_lane2": {
-        "label": "Use Lane2",
-        "info": "Demultiplex this library from Lane2 if it is available.",
-        "type": "bool",
-        "default": true,
-        "conditions": {
-          "relevance": {
-            "operand": "equal",
-            "negation": false,
-            "values": {
-              "select_lanes": true
-            }
-          }
-        }
-      },
-      "use_lane3": {
-        "label": "Use Lane3",
-        "info": "Demultiplex this library from Lane3 if it is available.",
-        "type": "bool",
-        "default": true,
-        "conditions": {
-          "relevance": {
-            "operand": "equal",
-            "negation": false,
-            "values": {
-              "select_lanes": true
-            }
-          }
-        }
-      },
-      "use_lane4": {
-        "label": "Use Lane4",
-        "info": "Demultiplex this library from Lane4 if it is available.",
-        "type": "bool",
-        "default": true,
-        "conditions": {
-          "relevance": {
-            "operand": "equal",
-            "negation": false,
-            "values": {
-              "select_lanes": true
-            }
-          }
-        }
-      },
-      "additional_options": {
+      "illumina_basemask": {
         "label": "Additional options to bcl2fastq call",
         "type": "string",
-        "default": ""
-      },
-      "check_adaptors": {
-        "label": "Check adaptors by Minion",
-        "type": "bool",
-        "default": false
-      },
-      "min_adapter_matches": {
-        "label": "Min length of adaptor match (Minion)",
-        "type": "int",
-        "default": 12,
+        "default": "",
         "conditions": {
           "relevance": {
             "operand": "equal",
             "negation": false,
             "values": {
-              "check_adaptors": true
+              "specify_demultiplexing_detailed": true
+            }
+          }
+        }
+      },
+      "illumina_additional_options": {
+        "label": "Additional options to bcl2fastq call",
+        "type": "string",
+        "default": "",
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
+            }
+          }
+        }
+      },
+      "MGI_filter_param": {
+        "label": "Additional options to bcl2fastq call",
+        "type": "string",
+        "default": "",
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
             }
           }
         }
