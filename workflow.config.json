@@ -20,6 +20,8 @@
     ]
   },
   "general_params": [
+    "run_lane_splitting",
+    "lib_lane_splitting",
     "sample_name",
     "i7_name",
     "i7_sequence",

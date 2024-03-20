@@ -13,16 +13,9 @@ if os.path.exists(config["run_dir"] + "/Files/RTAComplete.txt"):
 
 ##### Sample table creation #####
 def get_panda_sample_tab_from_config_one_lib(lib_name):
-    sample_tab = pd.DataFrame.from_dict(config["libraries"][lib_name]["samples"],orient="index")
+    lib_config = config["libraries"][lib_name]
+    sample_tab = pd.DataFrame.from_dict(lib_config["samples"],orient="index")
     sample_tab["library"] = lib_name
-    bcl2fastq_params_slug = ("bcl2fastqslug_" + str(config["libraries"][lib_name]["barcode_mismatches"]) + "" + \
-                            str(config["libraries"][lib_name]["additional_options"]) + "" + \
-                            str(config["libraries"][lib_name]["R1FastQMask"]) + "" + \
-                            str(config["libraries"][lib_name]["R2FastQMask"]) + "" + \
-                            str(config["libraries"][lib_name]["I1Mask"]) + "" + \
-                            str(config["libraries"][lib_name]["I2Mask"]) + "" + \
-                            str(config["libraries"][lib_name]["UmiMask"]))
-    sample_tab["bcl2fastq_params_slug"] = re.sub("[^a-zA-Z0-9_-]","_",bcl2fastq_params_slug)
 
     # Adding the lane columns
     sample_tab["lane1"] = config["libraries"][lib_name]["use_lane1"]
@@ -30,43 +23,41 @@ def get_panda_sample_tab_from_config_one_lib(lib_name):
     sample_tab["lane3"] = config["libraries"][lib_name]["use_lane3"]
     sample_tab["lane4"] = config["libraries"][lib_name]["use_lane4"]
 
+    prefix = config["run_sequencer_type"] + "_"
+    for key, value in lib_config.items():
+        if key.startswith(prefix):
+            sample_tab[key] = value
+
     return sample_tab
+
 
 def get_panda_sample_tab_from_config(config):
     tab_list = [get_panda_sample_tab_from_config_one_lib(lib_name) for lib_name in config["libraries"].keys()]
-    sample_tab = pd.concat(tab_list)
+    sample_tab = pd.concat(tab_list,ignore_index=True)
+
+    # Identify columns that start with the run_sequencer_type prefix
+    prefix_columns = [col for col in sample_tab.columns if col.startswith(config["run_sequencer_type"] + "_")]
+
+    # Create a unique identifier for each combination of values in the prefix_columns
+    sample_tab['combination_id'] = sample_tab[prefix_columns].astype(str).agg('-'.join,axis=1)
+
+    # Map each unique combination to a unique demux_setting value
+    combination_to_demux = {combination: f'demux_{i + 1}' for i, combination in
+                            enumerate(sample_tab['combination_id'].unique())}
+    sample_tab['demux_setting'] = sample_tab['combination_id'].map(combination_to_demux)
+
+    # Optionally, you can drop the temporary 'combination_id' column if it's no longer needed
+    sample_tab.drop(columns=['combination_id'],inplace=True)
+
     return sample_tab
-def get_used_lanes(sample_tab):
-    # Extract unique libraries from sample_tab
-    libraries = sample_tab['library'].unique()
-
-    # Initialize an empty list to store the data
-    libraries_lane_usage = {}
-
-    for lib in libraries:
-        # Initialize the list for lane usage for the current library
-        lane_usage = []
-
-        # Check each lane and add the corresponding string if True
-        if sample_tab[sample_tab['library'] == lib].iloc[0]['lane1']:
-            lane_usage.append('L01')
-        if sample_tab[sample_tab['library'] == lib].iloc[0]['lane2']:
-            lane_usage.append('L02')
-        if sample_tab[sample_tab['library'] == lib].iloc[0]['lane3']:
-            lane_usage.append('L03')
-        if sample_tab[sample_tab['library'] == lib].iloc[0]['lane4']:
-            lane_usage.append('L04')
-
-        # Append the library name and its lane usage to the list
-        libraries_lane_usage[lib] = lane_usage
-
-
-    return libraries_lane_usage
 
 
 sample_tab = get_panda_sample_tab_from_config(config)
-# sample_tab = sample_tab.iloc[90:]
-# print(sample_tab)
+
+sample_tab = sample_tab.iloc[:40]
+print(sample_tab)
+
+exit()
 # print(sample_tab.shape[0])
 sample_tab['read_output_count'] = sample_tab.apply(lambda row: 1 if config["run_reverse_read_length"] == 0 else 2, axis=1)
 for lib_name in config["libraries"].keys():
