@@ -5,15 +5,15 @@
     "label":"Demultiplexing of short-read run",
     "type":"run_demultiplexing",
     "inputs":[
-      "../Raw/{run_dir_name}/*",
-      "{run_dir}/L01/BioInfo.csv"
+      "{run_dir}/*"
     ],
     "outputs": [
       "raw_fastq/{sample}*fastq*"
     ],
     "run_parameters": {
       "cpu": 30,
-      "memory": 128
+      "memory": 128,
+      "gpu":true
     },
     "run_outputs":[
       "{library}/sequencing_run_info/*"

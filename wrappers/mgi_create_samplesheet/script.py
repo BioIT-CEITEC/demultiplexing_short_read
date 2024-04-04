@@ -5,105 +5,46 @@ import re
 import csv
 import pandas as pd
 
-config = snakemake.params.config
-
-#create_basemask_tab
-basemask_tab = []
-# Parameters to extract
-parameters = ["R1FastQMask", "R2FastQMask", "I1Mask", "I2Mask", "UmiMask"]
-# Iterate through each project in the 'libraries' key
-for project, libraries in config.get('libraries', {}).items():
-    if isinstance(libraries, dict):
-        # Iterate through each key in the individual dictionary
-        for setting_name, value in libraries.items():
-            if setting_name in parameters:
-                basemask_tab.append({
-                    "SettingName": setting_name,
-                    "Value": str(value),
-                    "Project": project
-                })
-            if setting_name == "barcode_mismatches":
-                basemask_tab.append({
-                    "SettingName": "I1MismatchThreshold",
-                    "Value": str(value),
-                    "Project": project
-                })
-                basemask_tab.append({
-                    "SettingName": "I2MismatchThreshold",
-                    "Value": str(value),
-                    "Project": project
-                })
-# Filter out entries where the value is not an empty string
-basemask_tab = [entry for entry in basemask_tab if entry["Value"] != ""]
-
-
-#process sample tab
 sample_tab = snakemake.params.sample_tab
-#add lane info from config
-#create lane info table
-lane_info = []
-# Iterate through each project in the 'libraries' key
-for lib_name, lib in config.get('libraries', {}).items():
-    if isinstance(lib, dict):
-        # Iterate through each key in the individual dictionary
-        lane = "1+2"
-        if lib["select_lanes"] == True:
-            if lib["use_lane1"] == True and lib["use_lane2"] == False:
-                lane = "1"
-            if lib["use_lane2"] == True and lib["use_lane1"] == False:
-                lane = "2"
-        lane_info.append({
-            "library": lib_name,
-            "Lane": lane,
-        })
-lane_info = pd.DataFrame(lane_info)
-sample_tab = pd.merge(sample_tab, lane_info, on='library', how='inner')
+column_name = snakemake.params.lane
+column_name = column_name.replace("L0","lane")
+sample_tab = sample_tab[sample_tab[column_name] == True]
 
-if "i5_sequence" in sample_tab:
-    to_print_sample_tab = sample_tab[['sample_name', 'i7_sequence','i5_sequence','Lane','library']]
-    to_print_sample_tab = to_print_sample_tab.rename(columns={'sample_name': 'SampleName', 'i7_sequence': 'Index1','i5_sequence': 'Index2', 'Lane': 'Lane','library': 'Project'})
-else:
-    to_print_sample_tab = sample_tab[['sample_name', 'i7_sequence', 'Lane', 'library']]
-    to_print_sample_tab = to_print_sample_tab.rename(columns={'sample_name': 'SampleName', 'i7_sequence': 'Index1','Lane': 'Lane', 'library': 'Project'})
+def get_sequenced_barcode_lengths(file_path):
+    bioinfo_df = pd.read_csv(file_path)
 
-#print to csv file
-with open(snakemake.output.run_manifest, 'a') as file:
+    # Initialize variables to hold the sequence lengths
+    i7_sequence_length = None
+    i5_sequence_length = None
 
-    # if basemask_tab:
-    #     # Write the text
-    #     file.write("[SETTINGS],,\n")
-    #     # Convert the list of dictionaries to a DataFrame and write as CSV
-    #     basemask_tab = pd.DataFrame(basemask_tab)
-    #     basemask_tab.to_csv(file, index=False)
+    # Loop through the DataFrame to find the relevant information
+    for index, row in bioinfo_df.iterrows():
+        if 'Barcode' in row.values:
+            i7_sequence_length = int(row.values[1])  # Assuming the length is in the second column
+        elif 'Dual Barcode' in row.values:
+            i5_sequence_length = int(row.values[1])  # Assuming the length is in the second column
+        if i7_sequence_length and i5_sequence_length:
+            break  # Stop the loop if both lengths are found
 
-    # Write the second block of text
-    file.write("\n[SAMPLES],,\n")
-    # Write the pandas DataFrame as CSV
-    to_print_sample_tab.to_csv(file, index=False)
+    return [i7_sequence_length, i5_sequence_length]
 
-#
-#
-# with open(snakemake.output.samplesheet_csv, mode='w') as samplesheet_file:
-#     writer = csv.writer(samplesheet_file)
-#     writer.writerow(['[SETTINGS],,'])
-#     writer.writerow(['IEMFileVersion', '4'])
-#     writer.writerow(['Experiment name', snakemake.params.run_name])
-#     writer.writerow(['Workflow', 'GenerateFASTQ'])
-#     writer.writerow(['Application', 'FASTQ Only'])
-#     writer.writerow(['Description'])
-#
-#     if "i5_sequence" in sample_tab:
-#         writer.writerow(['Chemistry', 'Amplicon'])
-#     else:
-#         writer.writerow(['Chemistry', 'Default'])
-#
-#     writer.writerow(['[Reads]'])
-#     writer.writerow([str(snakemake.params.run_forward_read_length)])
-#     writer.writerow([str(snakemake.params.run_reverse_read_length)])
-#     writer.writerow(['[Settings]'])
-#     writer.writerow(['[Data]'])
-#     writer.writerow(
-#         ['Sample_ID', 'Sample_Name', 'Sample_Plate', 'Sample_Well', 'I7_Index_ID', 'index', 'I5_Index_ID', 'index2',
-#          'Sample_Project', 'Description'])
-#
-#
+def concat_sequences(i7_seq, i5_seq, i7_len, i5_len):
+    return i7_seq[-i7_len:] + i5_seq[-i5_len:]
+
+
+sequenced_barcode_lengths = get_sequenced_barcode_lengths(snakemake.input.run_info)
+
+
+
+# Apply the function to create a new column with the concatenated sequences
+sample_tab['concatenated_sequences'] = sample_tab.apply(lambda row: concat_sequences(row['i7_sequence'],
+                                                                                     row['i5_sequence'],
+                                                                                     sequenced_barcode_lengths[0],
+                                                                                     sequenced_barcode_lengths[1]), axis=1)
+
+# Create a new table with only the sample_name and concatenated_sequences columns
+samplesheet_tab = sample_tab[['sample_name', 'concatenated_sequences']]
+
+with open(snakemake.output.sample_sheet, 'w') as file:
+    samplesheet_tab.to_csv(file, sep='\t', index=False, header=False)
+

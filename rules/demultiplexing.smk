@@ -40,33 +40,56 @@ if config["run_sequencer_type"] == "AVITI":
 
 elif config["run_sequencer_type"] == "MGI":
     rule mgi_create_samplesheet:
-        input: run_info=expand("{run_dir}/L01/BioInfo.csv",run_dir=config["run_dir"]),
-        output: run_manifest="mgi_sample_sheet_{lane}.txt"
-        params: sample_tab=sample_tab,
-            config=config
+        input: run_info=expand("{run_dir}/L01/BioInfo.csv",run_dir=config["run_dir"])[0],
+        output: sample_sheet="mgi_sample_sheet_{lane}.txt"
+        params: lane="{lane}",
+                sample_tab=sample_tab,
+                config=config
         script: "../wrappers/mgi_create_samplesheet/script.py"
 
     rule mgi_calDemux:
-        input:  run_manifest="mgi_sample_sheet_{lane}.txt"
-        output: fastq_files = expand("demux/FS2000/{{lane}}/FS2000_{{lane}}_{sample_name}_{read_num}.fq.gz",zip \
+        input:  sample_sheet="mgi_sample_sheet_{lane}.txt"
+        output: fastq_files = expand("{{demux}}/FS2000/{{lane}}/FS2000_{{lane}}_{sample_name}_{read_num}.fq.gz",zip \
                                             ,sample_name=sample_file_tab.sample_name \
                                             ,read_num=sample_file_tab.read_num),
-                stats=expand("demux/FS2000/{{lane}}/{stat_filenames}.txt" \
+                stats=expand("{{demux}}/FS2000/{{lane}}/{stat_filenames}.txt" \
                                             ,stat_filenames=["SequenceStat", "BarcodeStat"])
         # demultiplex_complete_check = config["run_name"] + "/{bcl2fastq_params_slug}/Reports/html/index.html",
         # stats = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/Stats.json",
         # html  = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc.html",
         # mzip  = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc_data.zip",
-        params: tmp_dir=GLOBAL_TMPD_PATH
+        params: tmp_dir=GLOBAL_TMPD_PATH,
+                executable_file_path=GLOBAL_REF_PATH + "/general/MGI_SplitBarcode-v2/SplitBarcode-v2.0.0/linux/bin/splitBarcode",
+                demux_data_dir = config["run_dir"] + "/{lane}/calFile",
+                demux = "{demux}",
+                lane="{lane}",
+                sample_tab=sample_tab,
+                run_info=expand("{run_dir}/L01/BioInfo.csv",run_dir=config["run_dir"])[0]
         threads: 30
-        log: "logs/calDemux_{lane}.log"
-        conda: "../wrappers/mgi_calDemux/env.yaml"
+        log: "logs/calDemux_{demux}_{lane}.log"
+        # conda: "../wrappers/mgi_calDemux/env.yaml"
         script: "../wrappers/mgi_calDemux/script.py"
 
+    def get_lanes_for_library(library):
+        if config["run_lane_splitting"] != None:
+            lane_usage = []
+            for lane in range(1,config["run_lane_splitting"] + 1):
+                lane_key = f"lane{lane}"
+                lane_code = f"L0{lane}"
+                if sample_tab[sample_tab['library'] == library].iloc[0][lane_key]:
+                    lane_usage.append(lane_code)
+            return lane_usage
+
+
+    def get_demux_for_library(library):
+        demux_setting = sample_tab.loc[sample_tab['library'] == library,].iloc[0]['demux_setting']
+        return demux_setting
 
     def mgi_cat_lane_fastq_input(wildcards):
-        return expand("demux/FS2000/{lane}/FS2000_{lane}_"+wildcards.sample_name+"_"+wildcards.read_num+".fq.gz" \
-            ,lane = per_library_used_lanes[wildcards.library])
+            input_list = expand("{demux_setting}/FS2000/{lane}/FS2000_{lane}_"+wildcards.sample_name+"_"+wildcards.read_num+".fq.gz",zip \
+                ,lane =  get_lanes_for_library(wildcards.library)
+                ,demux_setting = get_demux_for_library(wildcards.library))
+            return input_list
 
     rule mgi_cat_lane_fastq:
         input: mgi_cat_lane_fastq_input
@@ -77,8 +100,9 @@ elif config["run_sequencer_type"] == "MGI":
 
 
     def mgi_stats_copy_input(wildcards):
-        return expand("demux/FS2000/{lane}/{stat_filenames}.txt" \
-            ,lane = per_library_used_lanes[wildcards.library]
+        return expand("{demux_setting}/FS2000/{lane}/{stat_filenames}.txt" \
+            ,lane=get_lanes_for_library(wildcards.library)
+            ,demux_setting=get_demux_for_library(wildcards.library)
             ,stat_filenames = ["SequenceStat", "BarcodeStat"])
 
     rule mgi_stats_copy:
