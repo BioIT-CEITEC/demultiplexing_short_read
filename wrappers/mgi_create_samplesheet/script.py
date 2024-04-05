@@ -37,8 +37,8 @@ sequenced_barcode_lengths = get_sequenced_barcode_lengths(snakemake.input.run_in
 
 
 # Apply the function to create a new column with the concatenated sequences
-sample_tab['concatenated_sequences'] = sample_tab.apply(lambda row: concat_sequences(row['i7_sequence'],
-                                                                                     row['i5_sequence'],
+sample_tab['concatenated_sequences'] = sample_tab.apply(lambda row: concat_sequences(row['i5_sequence'],
+                                                                                     row['i7_sequence'],
                                                                                      sequenced_barcode_lengths[0],
                                                                                      sequenced_barcode_lengths[1]), axis=1)
 
