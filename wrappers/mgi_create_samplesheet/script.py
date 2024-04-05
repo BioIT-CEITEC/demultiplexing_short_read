@@ -9,6 +9,7 @@ sample_tab = snakemake.params.sample_tab
 column_name = snakemake.params.lane
 column_name = column_name.replace("L0","lane")
 sample_tab = sample_tab[sample_tab[column_name] == True]
+sample_tab = sample_tab[sample_tab['demux_setting'] == snakemake.params.demux]
 
 def get_sequenced_barcode_lengths(file_path):
     bioinfo_df = pd.read_csv(file_path)
@@ -29,7 +30,9 @@ def get_sequenced_barcode_lengths(file_path):
     return [i7_sequence_length, i5_sequence_length]
 
 def concat_sequences(i7_seq, i5_seq, i7_len, i5_len):
-    return i7_seq[-i7_len:] + i5_seq[-i5_len:]
+    if all(char == 'G' for char in i7_seq):
+        i7_seq = i7_seq.replace('G', 'N')
+    return i5_seq[-i5_len:] + i7_seq[-i7_len:]
 
 
 sequenced_barcode_lengths = get_sequenced_barcode_lengths(snakemake.input.run_info)
@@ -37,8 +40,8 @@ sequenced_barcode_lengths = get_sequenced_barcode_lengths(snakemake.input.run_in
 
 
 # Apply the function to create a new column with the concatenated sequences
-sample_tab['concatenated_sequences'] = sample_tab.apply(lambda row: concat_sequences(row['i5_sequence'],
-                                                                                     row['i7_sequence'],
+sample_tab['concatenated_sequences'] = sample_tab.apply(lambda row: concat_sequences(row['i7_sequence'],
+                                                                                     row['i5_sequence'],
                                                                                      sequenced_barcode_lengths[0],
                                                                                      sequenced_barcode_lengths[1]), axis=1)
 

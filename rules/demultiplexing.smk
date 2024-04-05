@@ -41,14 +41,15 @@ if config["run_sequencer_type"] == "AVITI":
 elif config["run_sequencer_type"] == "MGI":
     rule mgi_create_samplesheet:
         input: run_info=expand("{run_dir}/L01/BioInfo.csv",run_dir=config["run_dir"])[0],
-        output: sample_sheet="mgi_sample_sheet_{lane}.txt"
+        output: sample_sheet="mgi_sample_sheet_{lane}_{demux}.txt"
         params: lane="{lane}",
+                demux= "{demux}",
                 sample_tab=sample_tab,
                 config=config
         script: "../wrappers/mgi_create_samplesheet/script.py"
 
     rule mgi_calDemux:
-        input:  sample_sheet="mgi_sample_sheet_{lane}.txt"
+        input:  sample_sheet="mgi_sample_sheet_{lane}_{demux}.txt"
         output: ready_file = "{demux}/FS2000/{lane}/demux_ready.txt",
     # fastq_files = expand("{{demux}}/FS2000/{{lane}}/FS2000_{{lane}}_{sample_name}_{read_num}.fq.gz",zip \
     #                                         ,sample_name=sample_file_tab.sample_name \
