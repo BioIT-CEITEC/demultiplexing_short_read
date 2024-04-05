@@ -10,7 +10,7 @@ run_info_filename = str(snakemake.input.run_info)
 with open(run_info_filename) as f:
    run_index_lengths = re.findall("<Read.*NumCycles=\"([0-9]+)\".*IsIndexedRead=\"Y\" />", f.read())
 run_index_lengths = [int(index) for index in run_index_lengths]
-print(run_index_lengths)
+# print(run_index_lengths)
 
 sample_tab = snakemake.params.sample_tab
 

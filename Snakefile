@@ -164,7 +164,7 @@ else:
     sample_tab = get_panda_sample_tab_from_config(config)
 
     # sample_tab = sample_tab.iloc[:15]
-    print(sample_tab)
+    # print(sample_tab)
 
     sample_file_tab = sample_tab.reindex(sample_tab.index.repeat(sample_tab['read_output_count'])) \
         .assign(read_num=lambda x: x.groupby(['library', 'sample_name']).cumcount() + 1) \
@@ -178,7 +178,7 @@ else:
         ,read_num=sample_file_tab.read_num)
 
     library_output = "-"
-    print(per_library_used_lanes)
+    # print(per_library_used_lanes)
 
 ##### wildcard_constraints #####
 wildcard_constraints:
