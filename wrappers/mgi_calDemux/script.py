@@ -68,10 +68,10 @@ sequencing_run_info = get_sequencing_run_info(snakemake.params.run_info)
 filter_param = sample_tab[sample_tab['demux_setting'] == snakemake.params.demux].iloc[0]['MGI_filter_param']
 if filter_param == "":
     filter_param = "2 20 20 1 1 0.75 0.75"
-print(filter_param)
-fastq_output_dir = os.path.dirname(snakemake.output.fastq_files[0])
-if fastq_output_dir == "":
-    fastq_output_dir = "."
+# print(filter_param)
+# fastq_output_dir = os.path.dirname(snakemake.output.fastq_files[0])
+# if fastq_output_dir == "":
+#     fastq_output_dir = "."
 
 command = snakemake.params.executable_file_path + " -r " \
                 + " -F " + tmp_run_data \
@@ -94,10 +94,8 @@ f.write("## COMMAND: "+command+"\n")
 f.close()
 shell(command)
 
-# command = "multiqc -f -z -n "+snakemake.output.html+\
-#           " "+snakemake.output.stats+\
-#           " >> "+log_filename+" 2>&1"
-# f = open(log_filename, 'at')
-# f.write("## COMMAND: "+command+"\n")
-# f.close()
-# shell(command)
+command = "touch " + snakemake.output.ready_file
+f = open(log_filename, 'at')
+f.write("## COMMAND: "+command+"\n")
+f.close()
+shell(command)

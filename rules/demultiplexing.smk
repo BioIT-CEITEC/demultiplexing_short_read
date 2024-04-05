@@ -49,9 +49,10 @@ elif config["run_sequencer_type"] == "MGI":
 
     rule mgi_calDemux:
         input:  sample_sheet="mgi_sample_sheet_{lane}.txt"
-        output: fastq_files = expand("{{demux}}/FS2000/{{lane}}/FS2000_{{lane}}_{sample_name}_{read_num}.fq.gz",zip \
-                                            ,sample_name=sample_file_tab.sample_name \
-                                            ,read_num=sample_file_tab.read_num),
+        output: ready_file = "{demux}/FS2000/{lane}/demux_ready.txt",
+    # fastq_files = expand("{{demux}}/FS2000/{{lane}}/FS2000_{{lane}}_{sample_name}_{read_num}.fq.gz",zip \
+    #                                         ,sample_name=sample_file_tab.sample_name \
+    #                                         ,read_num=sample_file_tab.read_num),
                 stats=expand("{{demux}}/FS2000/{{lane}}/{stat_filenames}.txt" \
                                             ,stat_filenames=["SequenceStat", "BarcodeStat"])
         # demultiplex_complete_check = config["run_name"] + "/{bcl2fastq_params_slug}/Reports/html/index.html",
@@ -65,7 +66,7 @@ elif config["run_sequencer_type"] == "MGI":
                 lane="{lane}",
                 sample_tab=sample_tab,
                 run_info=expand("{run_dir}/L01/BioInfo.csv",run_dir=config["run_dir"])[0]
-        threads: 30
+        threads: 60
         log: "logs/calDemux_{demux}_{lane}.log"
         # conda: "../wrappers/mgi_calDemux/env.yaml"
         script: "../wrappers/mgi_calDemux/script.py"
@@ -85,18 +86,25 @@ elif config["run_sequencer_type"] == "MGI":
         demux_setting = sample_tab.loc[sample_tab['library'] == library,].iloc[0]['demux_setting']
         return demux_setting
 
+    def mgi_cat_lane_ready_input(wildcards):
+        input_list = expand("{demux_setting}/FS2000/{lane}/demux_ready.txt",zip \
+            ,lane =  get_lanes_for_library(wildcards.library)
+            ,demux_setting = get_demux_for_library(wildcards.library))
+        return input_list
+
     def mgi_cat_lane_fastq_input(wildcards):
-            input_list = expand("{demux_setting}/FS2000/{lane}/FS2000_{lane}_"+wildcards.sample_name+"_"+wildcards.read_num+".fq.gz",zip \
-                ,lane =  get_lanes_for_library(wildcards.library)
-                ,demux_setting = get_demux_for_library(wildcards.library))
-            return input_list
+        input_list = expand("{demux_setting}/FS2000/{lane}/FS2000_{lane}_" + wildcards.sample_name + "_" + wildcards.read_num + ".fq.gz",zip \
+            ,lane=get_lanes_for_library(wildcards.library)
+            ,demux_setting=get_demux_for_library(wildcards.library))
+        return input_list
 
     rule mgi_cat_lane_fastq:
-        input: mgi_cat_lane_fastq_input
+        input: mgi_cat_lane_ready_input
         output: "{library}/raw_fastq/{sample_name}_R{read_num}.fastq.gz",
-        threads: 30
+        params: fastq = mgi_cat_lane_fastq_input
+        threads: 60
         shell:
-            "mkdir -p '$(dirname {output})'; cat {input} > {output}"
+            "mkdir -p '$(dirname {output})'; cat {params.fastq} > {output}"
 
 
     def mgi_stats_copy_input(wildcards):
@@ -112,7 +120,8 @@ elif config["run_sequencer_type"] == "MGI":
         params: stats_json_file="Samples/{library}/{library}_RunStats.json"
         # script: "../wrappers/mgi_stats_copy/script.py"
         shell:
-            "mkdir -p '$(dirname {output})'; cat {input} > {output}"
+            "cat {input} > {output}"
+    # mkdir - p \"$(dirname {output})\";
 
     # rule illumina_fastq_mv:
     #     input:  demultiplex_complete_check = expand(config["run_name"] + "/{bcl2fastq_params_slug}/Reports/html/index.html",bcl2fastq_params_slug = list(pd.unique(sample_tab['bcl2fastq_params_slug']))),
