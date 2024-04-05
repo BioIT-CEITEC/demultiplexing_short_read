@@ -184,7 +184,9 @@ else:
 wildcard_constraints:
     sample = "|".join(set(sample_tab.sample_name.tolist())),
     library = "|".join(set(sample_tab.library.tolist())),
-    bcl2fastq_params_slug = "bcl2fastqslug_[a-zA-Z0-9_-]*"
+    bcl2fastq_params_slug = "bcl2fastqslug_[a-zA-Z0-9_-]*",
+    lane="L0.",
+    demux="demux."
 
 
 rule all:
