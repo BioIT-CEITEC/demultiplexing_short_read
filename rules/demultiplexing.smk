@@ -63,7 +63,7 @@ if config["run_sequencer_type"] == "AVITI":
     rule aviti_create_samplesheet:
         input:  run_info = expand("{run_dir}/RunParameters.json",run_dir=config["run_dir"]),
         output: run_manifest = "{demux_setting}/run_manifest.csv",
-        params: sample_tab = sample_tab,
+        params: sample_tab = lambda wildcards: sample_tab[sample_tab['demux_setting'] == wildcards.demux_setting],
                 config = config
         script: "../wrappers/aviti_create_samplesheet/script.py"
 

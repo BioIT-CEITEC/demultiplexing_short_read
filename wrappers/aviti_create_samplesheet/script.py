@@ -10,6 +10,7 @@ config = snakemake.params.config
 #create_basemask_tab
 basemask_tab = []
 # Parameters to extract
+#TODO include tab
 parameters = ["R1FastQMask", "R2FastQMask", "I1Mask", "I2Mask", "UmiMask"]
 # Iterate through each project in the 'libraries' key
 for project, libraries in config.get('libraries', {}).items():
@@ -46,12 +47,14 @@ lane_info = []
 for lib_name, lib in config.get('libraries', {}).items():
     if isinstance(lib, dict):
         # Iterate through each key in the individual dictionary
-        lane = "1+2"
-        if lib["select_lanes"] == True:
-            if lib["use_lane1"] == True and lib["use_lane2"] == False:
+        if config["run_lane_splitting"] != None:
+            if lib["lib_lane_splitting"]["lane1"] == True and lib["lib_lane_splitting"]["lane2"] == False:
                 lane = "1"
-            if lib["use_lane2"] == True and lib["use_lane1"] == False:
+            if lib["lib_lane_splitting"]["lane2"] == True and lib["lib_lane_splitting"]["lane1"] == False:
                 lane = "2"
+        else:
+            lane = "1+2"
+
         lane_info.append({
             "library": lib_name,
             "Lane": lane,
@@ -81,29 +84,4 @@ with open(snakemake.output.run_manifest, 'a') as file:
     # Write the pandas DataFrame as CSV
     to_print_sample_tab.to_csv(file, index=False)
 
-#
-#
-# with open(snakemake.output.samplesheet_csv, mode='w') as samplesheet_file:
-#     writer = csv.writer(samplesheet_file)
-#     writer.writerow(['[SETTINGS],,'])
-#     writer.writerow(['IEMFileVersion', '4'])
-#     writer.writerow(['Experiment name', snakemake.params.run_name])
-#     writer.writerow(['Workflow', 'GenerateFASTQ'])
-#     writer.writerow(['Application', 'FASTQ Only'])
-#     writer.writerow(['Description'])
-#
-#     if "i5_sequence" in sample_tab:
-#         writer.writerow(['Chemistry', 'Amplicon'])
-#     else:
-#         writer.writerow(['Chemistry', 'Default'])
-#
-#     writer.writerow(['[Reads]'])
-#     writer.writerow([str(snakemake.params.run_forward_read_length)])
-#     writer.writerow([str(snakemake.params.run_reverse_read_length)])
-#     writer.writerow(['[Settings]'])
-#     writer.writerow(['[Data]'])
-#     writer.writerow(
-#         ['Sample_ID', 'Sample_Name', 'Sample_Plate', 'Sample_Well', 'I7_Index_ID', 'index', 'I5_Index_ID', 'index2',
-#          'Sample_Project', 'Description'])
-#
-#
+
