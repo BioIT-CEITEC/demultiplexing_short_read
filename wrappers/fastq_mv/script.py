@@ -3,16 +3,20 @@
 #############################################################
 import os
 from snakemake.shell import shell
+
 shell.executable("/bin/bash")
 
-for in_file, out_file in zip(snakemake.params.fastqs_in, snakemake.output.fastqs_out):
+#create output dir
+shell("mkdir -p " + os.path.dirname(snakemake.output[0]))
+
+in_fastq_list = []
+for in_file in snakemake.params.fastq:
     if os.path.isfile(in_file):
-        shell("mv " + in_file + " " + out_file)
-    else:
-        shell("touch " + out_file)
-    if os.path.isfile(in_file.replace("_R1_001.fastq.gz","_R2_001.fastq.gz")):
-        shell("mv " + in_file.replace("_R1_001.fastq.gz","_R2_001.fastq.gz") + " " + out_file.replace("_R1_001.fastq.gz","_R2_001.fastq.gz"))
-    if os.path.isfile(in_file.replace("_R1_001.fastq.gz","_R3_001.fastq.gz")):
-        shell("mv " + in_file.replace("_R1_001.fastq.gz","_R3_001.fastq.gz") + " " + out_file.replace("_R1_001.fastq.gz","_R3_001.fastq.gz"))
-    if os.path.isfile(in_file.replace("_R1_001.fastq.gz","_R4_001.fastq.gz")):
-        shell("mv " + in_file.replace("_R1_001.fastq.gz","_R4_001.fastq.gz") + " " + out_file.replace("_R1_001.fastq.gz","_R4_001.fastq.gz"))
+        in_fastq_list.append(in_file)
+
+if len(in_fastq_list) == 0:
+    shell("touch " + snakemake.output)
+elif len(in_fastq_list) == 1:
+    shell("mv " + in_fastq_list[0] + " " + snakemake.output)
+else:
+    shell("cat " + in_fastq_list[0] + " > " + snakemake.output)

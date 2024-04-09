@@ -59,6 +59,7 @@ def get_panda_sample_tab_from_config(config):
 
     # Identify columns that start with the run_sequencer_type prefix
     prefix_columns = [col for col in sample_tab.columns if col.startswith(config["run_sequencer_type"] + "_")]
+    prefix_columns.append("barcode_mismatches")
 
     # Create a unique identifier for each combination of values in the prefix_columns
     sample_tab['combination_id'] = sample_tab[prefix_columns].astype(str).agg('-'.join,axis=1)
@@ -67,6 +68,7 @@ def get_panda_sample_tab_from_config(config):
     combination_to_demux = {combination: f'demux_{i + 1}' for i, combination in
                             enumerate(sample_tab['combination_id'].unique())}
     sample_tab['demux_setting'] = sample_tab['combination_id'].map(combination_to_demux)
+    sample_tab['sample_index'] = sample_tab.groupby('demux_setting').cumcount() + 1
 
     # Optionally, you can drop the temporary 'combination_id' column if it's no longer needed
     sample_tab.drop(columns=['combination_id'],inplace=True)
@@ -185,8 +187,7 @@ wildcard_constraints:
     sample = "|".join(set(sample_tab.sample_name.tolist())),
     library = "|".join(set(sample_tab.library.tolist())),
     bcl2fastq_params_slug = "bcl2fastqslug_[a-zA-Z0-9_-]*",
-    lane="L0.",
-    demux="demux_."
+    demux="demux_[0-9]"
 
 
 rule all:
