@@ -87,8 +87,8 @@ with open(snakemake.output.samplesheet_csv, mode='w') as samplesheet_file:
     writer.writerow(['[Data]'])
     if snakemake.params.run_lane_splitting != None:
         writer.writerow(
-        ["'Lane', 'Sample_ID', 'Sample_Name', 'Sample_Plate', 'Sample_Well', 'I7_Index_ID', 'index', 'I5_Index_ID', 'index2',\
-         'Sample_Project', 'Description'"])
+        ['Lane', 'Sample_ID', 'Sample_Name', 'Sample_Plate', 'Sample_Well', 'I7_Index_ID', 'index', 'I5_Index_ID', 'index2',\
+         'Sample_Project', 'Description'])
 
         lane_columns = [col for col in sample_tab.columns if col.startswith('lane')]
         for col in lane_columns:
@@ -102,6 +102,6 @@ with open(snakemake.output.samplesheet_csv, mode='w') as samplesheet_file:
 
     else:
         writer.writerow(
-            ["'Sample_ID', 'Sample_Name', 'Sample_Plate', 'Sample_Well', 'I7_Index_ID', 'index', 'I5_Index_ID', 'index2',\
-                'Sample_Project', 'Description'"])
+            ['Sample_ID', 'Sample_Name', 'Sample_Plate', 'Sample_Well', 'I7_Index_ID', 'index', 'I5_Index_ID', 'index2',\
+                'Sample_Project', 'Description'])
         write_sample_info(writer,run_index_lengths, sample_tab, 0)
