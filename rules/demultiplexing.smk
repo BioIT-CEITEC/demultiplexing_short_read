@@ -145,7 +145,7 @@ else:
         script: "../wrappers/create_samplesheet/script.py"
 
     rule illumina_bcl2fastq:
-        input:  samplesheet_csv = config["run_name"] + "/{demux_setting}/run_samplesheet.csv"
+        input:  samplesheet_csv = "{demux_setting}/run_samplesheet.csv"
         output: demultiplex_complete = "{demux_setting}/demux_ready.txt",
                 # stats = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/Stats.json",
                 # html  = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc.html",
