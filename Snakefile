@@ -23,15 +23,15 @@ def get_panda_sample_tab_from_config_one_lib(lib_name, run_lane_splitting_count)
                                                                             "run_reverse_read_length"] == 0 else 2,axis=1)
     if config["run_sequencer_type"] == "AVITI":
         # Check if base_mask_field is not empty
-        if config["libraries"][lib_name]["R2FastQMask"] != "":
+        if config["libraries"][lib_name]["AVITI_R2FastQMask"] != "":
             # Count the 'y' characters in base_mask_field
-            y_count = config["libraries"][lib_name]["R2FastQMask"].upper().count('Y')
+            y_count = config["libraries"][lib_name]["AVITI_R2FastQMask"].upper().count('Y')
             if y_count != 0:
                 # Update the DataFrame
                 sample_tab.loc[sample_tab['library'] == lib_name, 'read_output_count'] = 2
             else:
                 sample_tab.loc[sample_tab['library'] == lib_name, 'read_output_count'] = 1
-        y_count = config["libraries"][lib_name]["UmiMask"].upper().count('Y')
+        y_count = config["libraries"][lib_name]["AVITI_UmiMask"].upper().count('Y')
         if y_count != 0:
             # Update the DataFrame
             sample_tab.loc[sample_tab['library'] == lib_name, 'read_output_count'] += 1
@@ -48,14 +48,16 @@ def get_panda_sample_tab_from_config_one_lib(lib_name, run_lane_splitting_count)
         if key.startswith(prefix):
             sample_tab[key] = value
 
+    sample_tab["barcode_mismatches"] = lib_config["barcode_mismatches"]
+
     return sample_tab
 
 
 def get_panda_sample_tab_from_config(config):
     run_lane_splitting_count = config.get("run_lane_splitting",None)  # Default to 4 lanes if not specified
-    print(run_lane_splitting_count)
     tab_list = [get_panda_sample_tab_from_config_one_lib(lib_name,run_lane_splitting_count) for lib_name in config["libraries"].keys()]
     sample_tab = pd.concat(tab_list,ignore_index=True)
+
 
     # Identify columns that start with the run_sequencer_type prefix
     prefix_columns = [col for col in sample_tab.columns if col.startswith(config["run_sequencer_type"] + "_")]

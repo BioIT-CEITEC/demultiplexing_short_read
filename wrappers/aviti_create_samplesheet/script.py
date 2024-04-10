@@ -6,6 +6,7 @@ import csv
 import pandas as pd
 
 config = snakemake.params.config
+sample_tab = snakemake.params.sample_tab
 
 #create_basemask_tab
 basemask_tab = []

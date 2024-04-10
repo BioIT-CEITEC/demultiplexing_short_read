@@ -42,7 +42,7 @@ else:
 barcode_mismatches = bcl2fastq_setting["barcode_mismatches"]
 additional_options = bcl2fastq_setting["illumina_additional_options"]
 
-bcl_run_dir = os.path.dirname(snakemake.params.run_name)
+run_dir = snakemake.params.run_dir
 
 # if "config[run_sequencer_type]" == "NovaSeq":
 #   bcl2fastq_args_staged_bcl_dir = os.path.join(bcl_run_dir, "Files")
@@ -53,7 +53,7 @@ tmp_run_data = os.path.join(snakemake.params.tmp_dir,"run_tmp_data")
 if not os.path.exists(tmp_run_data):
     os.makedirs(tmp_run_data)
 
-command = "rsync -rt " + bcl2fastq_args_staged_bcl_dir + "/* " + tmp_run_data + " >> " + log_filename + " 2>&1"
+command = "rsync -rt " + run_dir + "/* " + tmp_run_data + " >> " + log_filename + " 2>&1"
 f = open(log_filename, 'at')
 f.write("## COMMAND: "+command+"\n")
 f.close()
@@ -65,7 +65,7 @@ command = "bcl2fastq -R " + tmp_run_data \
                  + " -o " + fastq_output_dir \
                  + no_lane_splitting \
                  + bases_mask_text \
-                 + " --interop-dir " + bcl_run_dir + "/InterOp" \
+                 + " --interop-dir " + tmp_run_data + "/InterOp" \
                  + " --sample-sheet " + snakemake.input.samplesheet_csv \
                  + " --loading-threads " + str(LOAD_TH) \
                  + " --processing-threads " + str(PROC_TH) \
@@ -77,6 +77,12 @@ command = "bcl2fastq -R " + tmp_run_data \
                  + " " + str(additional_options) \
                  + " --fastq-compression-level " + str(COMP_LVL) \
                  + " >> " + log_filename + " 2>&1"
+f = open(log_filename, 'at')
+f.write("## COMMAND: "+command+"\n")
+f.close()
+shell(command)
+
+command = "touch " + snakemake.output.demultiplex_complete
 f = open(log_filename, 'at')
 f.write("## COMMAND: "+command+"\n")
 f.close()

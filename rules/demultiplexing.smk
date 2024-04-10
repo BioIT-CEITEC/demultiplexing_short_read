@@ -74,7 +74,8 @@ if config["run_sequencer_type"] == "AVITI":
                 #         ,demux_setting = wildcards.demux_setting \
                 #         ,library = sample_tab[sample_tab['demux_setting'] == wildcards.demux_setting,'library'].unique().tolist() \
                 #         ,run_info_suffix = ["QC.html","Metrics.csv","RunStats.json","IndexAssignment.csv"])
-        params: tmp_dir = GLOBAL_TMPD_PATH
+        params: tmp_dir = GLOBAL_TMPD_PATH,
+                run_dir=config["run_dir"],
         threads: 30
         log:    "logs/{demux_setting}_Bases2Fastq.log"
         conda: "../wrappers/aviti_bases2fastq/env.yaml"
@@ -152,8 +153,8 @@ else:
         params: tmp_dir = GLOBAL_TMPD_PATH,
                 sample_tab = lambda wildcards: sample_tab[sample_tab['demux_setting'] == wildcards.demux_setting],
                 run_lane_splitting= config["run_lane_splitting"],
-                run_name= config["run_name"],
-        log:    logs/{demux_setting}bcl2fastq.log"
+                run_dir=config["run_dir"],
+        log:    "logs/{demux_setting}bcl2fastq.log"
         params: library_configs = lambda wildcards: {lib_name:config["libraries"][lib_name] for lib_name in set(sample_tab[sample_tab["bcl2fastq_params_slug"] == wildcards.bcl2fastq_params_slug].library)}
         conda: "../wrappers/bcl2fastq/env.yaml"
         script: "../wrappers/bcl2fastq/script.py"

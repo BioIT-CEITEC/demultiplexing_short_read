@@ -94,7 +94,7 @@ f.write("## COMMAND: "+command+"\n")
 f.close()
 shell(command)
 
-command = "touch " + snakemake.output.ready_file
+command = "touch " + snakemake.output.demultiplex_complete
 f = open(log_filename, 'at')
 f.write("## COMMAND: "+command+"\n")
 f.close()

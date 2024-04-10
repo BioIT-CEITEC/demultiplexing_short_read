@@ -47,7 +47,7 @@ f.write("## INFO: "+version+"\n")
 f.close()
 
 #run the demultiplexing
-run_dir = os.path.dirname(snakemake.input.run_complete_check[0])
+run_dir = snakemake.params.run_dir
 
 tmp_run_data = os.path.join(snakemake.params.tmp_dir,"run_tmp_data")
 if not os.path.exists(tmp_run_data):
@@ -68,6 +68,12 @@ command = tmp_tool_dir + "/bases2fastq " + tmp_run_data \
                  + " -r " + snakemake.input.run_manifest \
                  + " -p " + str(snakemake.threads) \
                  + " >> " + log_filename + " 2>&1"
+f = open(log_filename, 'at')
+f.write("## COMMAND: "+command+"\n")
+f.close()
+shell(command)
+
+command = "touch " + snakemake.output.demultiplex_complete
 f = open(log_filename, 'at')
 f.write("## COMMAND: "+command+"\n")
 f.close()
