@@ -4,7 +4,7 @@
 import re
 import csv
 
-def write_sample_info(writer,sample_tab,lane):
+def write_sample_info(writer,run_index_lengths,sample_tab,lane):
     fake_index_list = ["AAAAAAAAAAAA","TAAAAAAAAAAA","TTAAAAAAAAAA","TTTAAAAAAAAA","TTTTAAAAAAAA","TTTTTAAAAAAA","TTTTTTAAAAAAA"]
     existing_index_check_dict = {}
     dup_index_count = 0
@@ -98,10 +98,10 @@ with open(snakemake.output.samplesheet_csv, mode='w') as samplesheet_file:
             df_slice = sample_tab[sample_tab[col] == True]
 
             # Calling write_sample_info with the column name and the slice
-            write_sample_info(writer,df_slice,lane_number)
+            write_sample_info(writer,run_index_lengths,df_slice,lane_number)
 
     else:
         writer.writerow(
             ["'Sample_ID', 'Sample_Name', 'Sample_Plate', 'Sample_Well', 'I7_Index_ID', 'index', 'I5_Index_ID', 'index2',\
                 'Sample_Project', 'Description'"])
-        write_sample_info(writer, sample_tab, 0)
+        write_sample_info(writer,run_index_lengths, sample_tab, 0)
