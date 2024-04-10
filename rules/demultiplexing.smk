@@ -63,8 +63,7 @@ if config["run_sequencer_type"] == "AVITI":
     rule aviti_create_samplesheet:
         input:  run_info = expand("{run_dir}/RunParameters.json",run_dir=config["run_dir"]),
         output: run_manifest = "{demux_setting}/run_manifest.csv",
-        params: sample_tab = lambda wildcards: sample_tab[sample_tab['demux_setting'] == wildcards.demux_setting],
-                config = config
+        params: config = config
         script: "../wrappers/aviti_create_samplesheet/script.py"
 
     rule aviti_Bases2Fastq:
@@ -76,6 +75,7 @@ if config["run_sequencer_type"] == "AVITI":
                 #         ,run_info_suffix = ["QC.html","Metrics.csv","RunStats.json","IndexAssignment.csv"])
         params: tmp_dir = GLOBAL_TMPD_PATH,
                 run_dir=config["run_dir"],
+                sample_tab= lambda wildcards: sample_tab[sample_tab['demux_setting'] == wildcards.demux_setting],
         threads: 30
         log:    "logs/{demux_setting}_Bases2Fastq.log"
         conda: "../wrappers/aviti_bases2fastq/env.yaml"

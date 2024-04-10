@@ -6,34 +6,6 @@ import csv
 import pandas as pd
 
 config = snakemake.params.config
-sample_tab = snakemake.params.sample_tab
-
-#create_basemask_tab
-basemask_tab = []
-# Parameters to extract
-setting_dict = sample_tab.iloc[0].to_dict()
-
-parameters = ["R1FastQMask", "R2FastQMask", "I1Mask", "I2Mask", "UmiMask"]
-# Iterate through each project in the 'libraries' key
-
-for setting_name, value in setting_dict.items():
-    if setting_name.startswith('AVITI'):
-        basemask_tab.append({
-            "SettingName": setting_name.replace("AVITI_", ""),
-            "Value": str(value)
-        })
-    if setting_name == "barcode_mismatches":
-        basemask_tab.append({
-            "SettingName": "I1MismatchThreshold",
-            "Value": str(value)
-        })
-        basemask_tab.append({
-            "SettingName": "I2MismatchThreshold",
-            "Value": str(value)
-        })
-# Filter out entries where the value is not an empty string
-basemask_tab = [entry for entry in basemask_tab if entry["Value"] != ""]
-
 
 #process sample tab
 sample_tab = snakemake.params.sample_tab
@@ -69,12 +41,12 @@ else:
 #print to csv file
 with open(snakemake.output.run_manifest, 'a') as file:
 
-    if basemask_tab:
-        # Write the text
-        file.write("[SETTINGS],,\n")
-        # Convert the list of dictionaries to a DataFrame and write as CSV
-        basemask_tab = pd.DataFrame(basemask_tab)
-        basemask_tab.to_csv(file, index=False)
+    # if basemask_tab:
+    #     # Write the text
+    #     file.write("[SETTINGS],,\n")
+    #     # Convert the list of dictionaries to a DataFrame and write as CSV
+    #     basemask_tab = pd.DataFrame(basemask_tab)
+    #     basemask_tab.to_csv(file, index=False)
 
     # Write the second block of text
     file.write("\n[SAMPLES],,\n")
