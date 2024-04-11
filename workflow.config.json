@@ -44,7 +44,7 @@
       "barcode_mismatches": {
        "label": "barcode_mismatches",
         "type": "int",
-        "default": 1,
+        "default": 0,
         "conditions": {
           "relevance": {
             "operand": "equal",
