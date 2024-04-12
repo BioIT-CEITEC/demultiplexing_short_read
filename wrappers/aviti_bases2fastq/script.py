@@ -116,6 +116,15 @@ f.write("## COMMAND: "+command+"\n")
 f.close()
 shell(command)
 
+if not os.path.isfile("demux_info.tsv"):
+    with open("demux_info.tsv", 'w') as file:
+        # Write the specified text to the file
+        file.write("demux_id\tlane\trun_command\n")
+
+with open("demux_info.tsv", 'w') as file:
+    # Write the specified text to the file
+    file.write(snakemake.wildcards.demux_setting+"\tall\t"+command+"\n")
+
 command = "touch " + snakemake.output.demultiplex_complete
 f = open(log_filename, 'at')
 f.write("## COMMAND: "+command+"\n")

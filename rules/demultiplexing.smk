@@ -58,6 +58,24 @@ def fastq_mv_fastq_input(wildcards):
         "{run_name}/{sample_name}_S{sample_index}_{read_num}_001.fastq.gz"
     return input_list
 
+def stats_copy_input(wildcards):
+    if config["run_sequencer_type"] == "AVITI":
+        input_list = expand("{demux_setting}/{stat_filenames}" \
+            ,demux_setting=get_demux_for_library(wildcards.library)
+            ,stat_filenames=["*.html", "*.json","*.csv","*.json"])
+    elif config["run_sequencer_type"] == "MGI":
+        input_list = expand(expand("{demux_setting}/FS2000/{lane}/",zip \
+            ,lane=get_lanes_for_library(wildcards.library)
+            ,demux_setting=get_demux_for_library(wildcards.library)) + "{stat_filenames}"\
+            ,stat_filenames=["SequenceStat.txt", "BarcodeStat.txt","mgi_sample_sheet*.txt"])
+    else:
+        input_list = expand("{demux_setting}/{stat_filenames}" \
+            ,demux_setting=get_demux_for_library(wildcards.library)
+            ,stat_filenames=["Reports", "Stats","run_samplesheet.csv","*.html"])
+
+    return input_list
+
+
 
 if config["run_sequencer_type"] == "AVITI":
     rule aviti_create_samplesheet:
@@ -147,9 +165,7 @@ else:
     rule illumina_bcl2fastq:
         input:  samplesheet_csv = "{demux_setting}/run_samplesheet.csv"
         output: demultiplex_complete = "{demux_setting}/demux_ready.txt",
-                # stats = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/Stats.json",
-                # html  = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc.html",
-                # mzip  = config["run_name"] + "/{bcl2fastq_params_slug}/Stats/bcl2fastq_multiqc_data.zip",
+                html  = "{demux_setting}/Stats/bcl2fastq_multiqc.html",
         params: tmp_dir = GLOBAL_TMPD_PATH,
                 sample_tab = lambda wildcards: sample_tab[sample_tab['demux_setting'] == wildcards.demux_setting],
                 run_lane_splitting= config["run_lane_splitting"],
@@ -197,7 +213,7 @@ rule fastq_mv:
 
 rule stats_copy:
     input: fastq_mv_ready_input
-    output: "{library}/sequencing_run_info/Stats.json",
-    params: fastq = fastq_mv_fastq_input
+    output: "{library}/sequencing_run_info/demux_info.tsv",
+    params: fastq = stats_copy_input
     threads: 60
     script: "../wrappers/stats_copy/script.py"

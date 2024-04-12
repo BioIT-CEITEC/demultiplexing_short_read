@@ -43,7 +43,11 @@ def get_panda_sample_tab_from_config_one_lib(lib_name, run_lane_splitting_count)
             sample_tab[lane_key] = lib_config["lib_lane_splitting"].get(lane_key,True)
 
     # Adding the demultiplexing settings columns
-    prefix = config["run_sequencer_type"] + "_"
+    if config["run_sequencer_type"] == "AVITI" or config["run_sequencer_type"] == "MGI":
+        prefix = config["run_sequencer_type"] + "_"
+    else:
+        prefix = "illumina_"
+
     for key, value in lib_config.items():
         if key.startswith(prefix):
             sample_tab[key] = value
@@ -194,7 +198,7 @@ wildcard_constraints:
 
 rule all:
     input: fastq_files = resulting_fastq_files,
-           stats = expand("{library}/sequencing_run_info/Stats.json",library = library_names)
+           stats = expand("{library}/sequencing_run_info/demux_info.tsv",library = library_names)
 
 ##### Modules #####
 

@@ -20,6 +20,8 @@ f.close()
 sample_tab = snakemake.params.sample_tab
 bcl2fastq_setting = sample_tab.iloc[0].to_dict()
 
+print(bcl2fastq_setting)
+
 LOAD_TH = 10
 PROC_TH = 30
 WRIT_TH = 10
@@ -77,6 +79,24 @@ command = "bcl2fastq -R " + tmp_run_data \
                  + " " + str(additional_options) \
                  + " --fastq-compression-level " + str(COMP_LVL) \
                  + " >> " + log_filename + " 2>&1"
+f = open(log_filename, 'at')
+f.write("## COMMAND: "+command+"\n")
+f.close()
+shell(command)
+
+if not os.path.isfile("demux_info.tsv"):
+    with open("demux_info.tsv", 'w') as file:
+        # Write the specified text to the file
+        file.write("demux_id\tlane\trun_command\n")
+
+with open("demux_info.tsv", 'w') as file:
+    # Write the specified text to the file
+    file.write(snakemake.wildcards.demux_setting+"\tall\t"+command+"\n")
+
+
+command = "multiqc -f -z -n "+snakemake.output.html+\
+          " "+fastq_output_dir+ "/Stats/Stats.json" +\
+          " >> "+log_filename+" 2>&1"
 f = open(log_filename, 'at')
 f.write("## COMMAND: "+command+"\n")
 f.close()
