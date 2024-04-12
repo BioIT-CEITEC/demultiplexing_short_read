@@ -37,6 +37,10 @@ def get_sequencing_run_info(file_path):
 #run the demultiplexing
 run_dir = snakemake.params.demux_data_dir
 sample_tab = snakemake.params.sample_tab
+column_name = snakemake.params.lane
+column_name = column_name.replace("L0","lane")
+sample_tab = sample_tab[sample_tab[column_name] == True]
+sample_tab = sample_tab[sample_tab['demux_setting'] == snakemake.params.demux]
 
 tmp_run_data = os.path.join(snakemake.params.tmp_dir,"run_tmp_data",snakemake.params.lane)
 if not os.path.exists(tmp_run_data):
@@ -65,7 +69,7 @@ shell(command)
 # -o /var/run/user/1000/gvfs/sftp:host=147.251.158.86,user=128327/mnt/share/share/710000-CEITEC/713000-cmm/713004-genomics/base/MGI/V350223514/demux ## output base dir
 
 sequencing_run_info = get_sequencing_run_info(snakemake.params.run_info)
-filter_param = sample_tab[sample_tab['demux_setting'] == snakemake.params.demux].iloc[0]['MGI_filter_param']
+filter_param = sample_tab.iloc[0]['MGI_filter_param']
 if filter_param == "":
     filter_param = "2 20 20 1 1 0.75 0.75"
 # print(filter_param)
@@ -97,11 +101,11 @@ shell(command)
 if not os.path.isfile("demux_info.tsv"):
     with open("demux_info.tsv", 'w') as file:
         # Write the specified text to the file
-        file.write("demux_id\tlane\trun_command\n")
+        file.write("demux_id\tlane\trun_command\tlibraries\n")
 
 with open("demux_info.tsv", 'w') as file:
     # Write the specified text to the file
-    file.write(snakemake.params.demux+"\t"+snakemake.params.lane+"\t"+command+"\n")
+    file.write(snakemake.params.demux+"\t"+snakemake.params.lane+"\t"+command+"\t"+";".join(sample_tab['library'].unique().tolist())+"\n")
 
 
 command = "touch " + snakemake.output.demultiplex_complete

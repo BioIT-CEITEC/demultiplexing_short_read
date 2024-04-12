@@ -87,11 +87,11 @@ shell(command)
 if not os.path.isfile("demux_info.tsv"):
     with open("demux_info.tsv", 'w') as file:
         # Write the specified text to the file
-        file.write("demux_id\tlane\trun_command\n")
+        file.write("demux_id\tlane\trun_command\tlibraries\n")
 
 with open("demux_info.tsv", 'w') as file:
     # Write the specified text to the file
-    file.write(snakemake.wildcards.demux_setting+"\tall\t"+command+"\n")
+    file.write(snakemake.wildcards.demux_setting+"\tall\t"+command+"\t"+";".join(snakemake.params.sample_tab['library'].unique().tolist())+"\n")
 
 
 command = "multiqc -f -z -n "+snakemake.output.html+\
