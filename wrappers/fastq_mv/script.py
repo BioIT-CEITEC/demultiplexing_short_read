@@ -15,8 +15,8 @@ for in_file in snakemake.params.fastq:
         in_fastq_list.append(in_file)
 
 if len(in_fastq_list) == 0:
-    shell("touch " + snakemake.output)
+    shell("touch " + snakemake.output[0])
 elif len(in_fastq_list) == 1:
-    shell("mv " + in_fastq_list[0] + " " + snakemake.output)
+    shell("mv " + in_fastq_list[0] + " " + snakemake.output[0])
 else:
-    shell("cat " + in_fastq_list[0] + " > " + snakemake.output)
+    shell("cat " + in_fastq_list[0] + " > " + snakemake.output[0])
