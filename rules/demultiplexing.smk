@@ -178,14 +178,14 @@ else:
 
 rule fastq_mv:
     input: fastq_mv_ready_input
-    output: "{library}/raw_fastq/{sample_name}_R{read_num}.fastq.gz",
+    output: fastq = "{library}/raw_fastq/{sample_name}_R{read_num}.fastq.gz",
     params: fastq = fastq_mv_fastq_input
     threads: 60
     script: "../wrappers/fastq_mv/script.py"
 
 rule stats_copy:
     input: fastq_mv_ready_input
-    output: "{library}/sequencing_run_info/demux_info.tsv",
+    output: info_tab = "{library}/sequencing_run_info/demux_info.tsv",
     params: fastq = stats_copy_input
     threads: 60
     script: "../wrappers/stats_copy/script.py"

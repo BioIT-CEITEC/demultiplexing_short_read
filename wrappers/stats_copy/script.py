@@ -5,7 +5,7 @@ import os
 from snakemake.shell import shell
 shell.executable("/bin/bash")
 
-out_dir_name = os.path.dirname(snakemake.output)
+out_dir_name = os.path.dirname(snakemake.output.info_tab)
 command = "mkdir -p " + out_dir_name + " && cp demux_info.tsv " + out_dir_name
 shell(command)
 
