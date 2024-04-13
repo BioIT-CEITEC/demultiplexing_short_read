@@ -186,6 +186,6 @@ rule fastq_mv:
 rule stats_copy:
     input: fastq_mv_ready_input
     output: info_tab = "{library}/sequencing_run_info/demux_info.tsv",
-    params: fastq = stats_copy_input
+    params: stats_files = stats_copy_input
     threads: 60
     script: "../wrappers/stats_copy/script.py"

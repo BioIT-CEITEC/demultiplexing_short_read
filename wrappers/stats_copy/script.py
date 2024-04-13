@@ -9,7 +9,7 @@ out_dir_name = os.path.dirname(snakemake.output.info_tab)
 command = "mkdir -p " + out_dir_name + " && cp demux_info.tsv " + out_dir_name
 shell(command)
 
-for filename in snakemake.input.files:
+for filename in snakemake.params.stats_files:
     command = "mkdir -p " + os.path.join(out_dir_name,os.path.dirname(filename))\
               + " && cp -r " + filename + " " + os.path.join(out_dir_name,os.path.dirname(filename))
     shell(command)
