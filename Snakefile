@@ -175,8 +175,7 @@ else:
     sample_tab = get_panda_sample_tab_from_config(config)
 
     sample_tab = sample_tab.iloc[:15]
-    print(sample_tab)
-    exit()
+
 
     sample_file_tab = sample_tab.reindex(sample_tab.index.repeat(sample_tab['read_output_count'])) \
         .assign(read_num=lambda x: x.groupby(['library', 'sample_name']).cumcount() + 1) \
@@ -202,7 +201,7 @@ wildcard_constraints:
 
 rule all:
     input: fastq_files = resulting_fastq_files,
-           stats = expand("{library}/sequencing_run_info/demux_info.tsv",library = library_names)
+           stats = expand("{library}/sequencing_run_info/samplesNumberReads.json",library = library_names)
 
 ##### Modules #####
 

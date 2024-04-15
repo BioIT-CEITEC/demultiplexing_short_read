@@ -204,8 +204,9 @@ rule fastq_mv:
     script: "../wrappers/fastq_mv/script.py"
 
 rule stats_copy:
-    input: nread_file_input
+    input: fastq_mv_ready_input
     output: nread_json = "{library}/sequencing_run_info/samplesNumberReads.json",
-    params: stats_files = stats_copy_input
+    params: stats_files = stats_copy_input,
+            nread_file = nread_file_input
     threads: 60
     script: "../wrappers/stats_copy/script.py"
