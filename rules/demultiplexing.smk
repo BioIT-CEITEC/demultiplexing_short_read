@@ -78,7 +78,7 @@ def stats_copy_input(wildcards):
     else:
         input_list = expand("{demux_setting}/{stat_filenames}" \
             ,demux_setting=get_demux_for_library(wildcards.library)
-            ,stat_filenames=["Reports", "Stats","run_samplesheet.csv","*.html"])
+            ,stat_filenames=["Reports", "Stats","run_samplesheet.csv","Stats"])
 
     return input_list
 
@@ -91,7 +91,7 @@ def nread_file_input(wildcards):
             ,lane=get_lanes_for_library(wildcards.library)
             ,demux_setting=get_demux_for_library(wildcards.library))
     else:
-        input_list = expand("{demux_setting}/DemultiplexingStats.xml" \
+        input_list = expand("{demux_setting}/Stats/DemultiplexingStats.xml" \
             ,demux_setting=get_demux_for_library(wildcards.library))
     return input_list
 
@@ -204,9 +204,11 @@ rule fastq_mv:
     script: "../wrappers/fastq_mv/script.py"
 
 rule stats_copy:
-    input: fastq_mv_ready_input
+    input: in_stats_file = fastq_mv_ready_input
     output: nread_json = "{library}/sequencing_run_info/samplesNumberReads.json",
     params: stats_files = stats_copy_input,
-            nread_file = nread_file_input
+            nread_file = nread_file_input,
+            sample_tab = lambda wildcards: sample_tab[sample_tab["library"] == wildcards.library],
+            sequencer_type = config["run_sequencer_type"]
     threads: 60
     script: "../wrappers/stats_copy/script.py"
