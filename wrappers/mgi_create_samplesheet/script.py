@@ -46,7 +46,7 @@ sample_tab['concatenated_sequences'] = sample_tab.apply(lambda row: concat_seque
                                                                                      sequenced_barcode_lengths[1]), axis=1)
 
 # Create a new table with only the sample_name and concatenated_sequences columns
-samplesheet_tab = sample_tab[['sample_name', 'concatenated_sequences']]
+samplesheet_tab = sample_tab[['sample_name_full', 'concatenated_sequences']]
 
 with open(snakemake.output.sample_sheet, 'w') as file:
     samplesheet_tab.to_csv(file, sep='\t', index=False, header=False)

@@ -27,6 +27,10 @@ def get_sample_index_for_library(library,sample_name):
     sample_index = sample_tab.loc[(sample_tab['library'] == library) & (sample_tab['sample_name'] == sample_name)].iloc[0]['sample_index']
     return sample_index
 
+def get_sample_ID_for_library(library,sample_name):
+    sample_ID = sample_tab.loc[(sample_tab['library'] == library) & (sample_tab['sample_name'] == sample_name)].iloc[0]['sample_ID']
+    return sample_ID
+
 def fastq_mv_ready_input(wildcards):
     if config["run_sequencer_type"] == "AVITI":
         input_list = expand("{demux_setting}/demux_ready.txt" \
@@ -44,16 +48,19 @@ def fastq_mv_ready_input(wildcards):
 
 def fastq_mv_fastq_input(wildcards):
     if config["run_sequencer_type"] == "AVITI":
-        input_list = expand("{demux_setting}/Samples/"+wildcards.library+"/"+wildcards.sample_name+"/"+wildcards.sample_name+"_R"+wildcards.read_num+".fastq.gz"\
-            ,demux_setting=get_demux_for_library(wildcards.library))
+        input_list = expand("{demux_setting}/Samples/"+wildcards.library+"/"+wildcards.sample_name+"___{sample_ID}/"+wildcards.sample_name+"___{sample_ID}_R"+wildcards.read_num+".fastq.gz"\
+            ,demux_setting=get_demux_for_library(wildcards.library)
+            ,sample_ID=get_sample_ID_for_library(wildcards.library,wildcards.sample_name))
     elif config["run_sequencer_type"] == "MGI":
-        input_list = expand("{demux_setting}/FS2000/{lane}/FS2000_{lane}_" + wildcards.sample_name + "_" + wildcards.read_num + ".fq.gz",zip \
-            ,lane=get_lanes_for_library(wildcards.library)
-            ,demux_setting=get_demux_for_library(wildcards.library))
-    else:
-        input_list = expand("{demux_setting}/" + wildcards.sample_name + "_S{sample_index}{lane}_R" + wildcards.read_num + "_001.fastq.gz",zip \
+        input_list = expand("{demux_setting}/FS2000/{lane}/FS2000_{lane}_" + wildcards.sample_name + "___{sample_ID}_" + wildcards.read_num + ".fq.gz",zip \
             ,lane=get_lanes_for_library(wildcards.library)
             ,demux_setting=get_demux_for_library(wildcards.library)
+            ,sample_ID=get_sample_ID_for_library(wildcards.library,wildcards.sample_name))
+    else:
+        input_list = expand("{demux_setting}/" + wildcards.sample_name + "___{sample_ID}_S{sample_index}{lane}_R" + wildcards.read_num + "_001.fastq.gz",zip \
+            ,lane=get_lanes_for_library(wildcards.library)
+            ,demux_setting=get_demux_for_library(wildcards.library)
+            ,sample_ID=get_sample_ID_for_library(wildcards.library,wildcards.sample_name)
             ,sample_index=get_sample_index_for_library(wildcards.library,wildcards.sample_name))
         "{run_name}/{sample_name}_S{sample_index}_{read_num}_001.fastq.gz"
     return input_list
@@ -73,6 +80,19 @@ def stats_copy_input(wildcards):
             ,demux_setting=get_demux_for_library(wildcards.library)
             ,stat_filenames=["Reports", "Stats","run_samplesheet.csv","*.html"])
 
+    return input_list
+
+def nread_file_input(wildcards):
+    if config["run_sequencer_type"] == "AVITI":
+        input_list = expand("{demux_setting}/IndexAssignment.csv" \
+            ,demux_setting=get_demux_for_library(wildcards.library))
+    elif config["run_sequencer_type"] == "MGI":
+        input_list = expand("{demux_setting}/FS2000/{lane}/BarcodeStat.txt",zip \
+            ,lane=get_lanes_for_library(wildcards.library)
+            ,demux_setting=get_demux_for_library(wildcards.library))
+    else:
+        input_list = expand("{demux_setting}/DemultiplexingStats.xml" \
+            ,demux_setting=get_demux_for_library(wildcards.library))
     return input_list
 
 
@@ -180,12 +200,12 @@ rule fastq_mv:
     input: fastq_mv_ready_input
     output: fastq = "{library}/raw_fastq/{sample_name}_R{read_num}.fastq.gz",
     params: fastq = fastq_mv_fastq_input
-    threads: 60
+    threads: 1
     script: "../wrappers/fastq_mv/script.py"
 
 rule stats_copy:
-    input: fastq_mv_ready_input
-    output: info_tab = "{library}/sequencing_run_info/demux_info.tsv",
+    input: nread_file_input
+    output: nread_json = "{library}/sequencing_run_info/samplesNumberReads.json",
     params: stats_files = stats_copy_input
     threads: 60
     script: "../wrappers/stats_copy/script.py"

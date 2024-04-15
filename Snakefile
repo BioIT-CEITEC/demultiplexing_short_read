@@ -18,6 +18,9 @@ def get_panda_sample_tab_from_config_one_lib(lib_name, run_lane_splitting_count)
     sample_tab = pd.DataFrame.from_dict(lib_config["samples"],orient="index")
     sample_tab["library"] = lib_name
 
+    sample_tab['sample_ID'] = sample_tab.index.astype(str)
+    sample_tab['sample_name_full'] = sample_tab['sample_name'] + '___' + sample_tab['sample_ID']
+
     # Adding the read output counts column
     sample_tab['read_output_count'] = sample_tab.apply(lambda row: 1 if config[
                                                                             "run_reverse_read_length"] == 0 else 2,axis=1)
@@ -171,8 +174,9 @@ if "merged" in config and config["merged"]:
 else:
     sample_tab = get_panda_sample_tab_from_config(config)
 
-    # sample_tab = sample_tab.iloc[:15]
-    # print(sample_tab)
+    sample_tab = sample_tab.iloc[:15]
+    print(sample_tab)
+    exit()
 
     sample_file_tab = sample_tab.reindex(sample_tab.index.repeat(sample_tab['read_output_count'])) \
         .assign(read_num=lambda x: x.groupby(['library', 'sample_name']).cumcount() + 1) \

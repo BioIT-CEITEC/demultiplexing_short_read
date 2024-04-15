@@ -19,14 +19,14 @@ def write_sample_info(writer,run_index_lengths,sample_tab,lane):
             run_index_lengths = [100, 100]
         for index, row in sample_tab.iterrows():
             if not row["i7_sequence"][0:run_index_lengths[0]] + row["i5_sequence"][0:run_index_lengths[1]] in existing_index_check_dict.keys():
-                writer.writerow([lane_text + row["sample_name"], "", "", "",
+                writer.writerow([lane_text + row["sample_name_full"], "", "", "",
                                 row["i7_name"],
                                 row["i7_sequence"][0:run_index_lengths[0]],
                                 row["i5_name"],
                                 row["i5_sequence"][0:run_index_lengths[1]], "", ""])
                 existing_index_check_dict[row["i7_sequence"][0:run_index_lengths[0]] + row["i5_sequence"][0:run_index_lengths[1]]] = True
             else:
-                writer.writerow([lane_text + row["sample_name"], "", "", "",
+                writer.writerow([lane_text + row["sample_name_full"], "", "", "",
                                  row["i7_name"],
                                  fake_index_list[dup_index_count][0:run_index_lengths[0]],
                                  row["i5_name"],
@@ -37,14 +37,14 @@ def write_sample_info(writer,run_index_lengths,sample_tab,lane):
             run_index_lengths = [100]
         for index, row in sample_tab.iterrows():
             if not row["i7_sequence"][0:run_index_lengths[0]] in existing_index_check_dict.keys():
-                writer.writerow([lane_text + row["sample_name"], "", "", "",
+                writer.writerow([lane_text + row["sample_name_full"], "", "", "",
                                 row["i7_name"],
                                 row["i7_sequence"][0:run_index_lengths[0]],
                                 "",
                                 "", "", ""])
                 existing_index_check_dict[row["i7_sequence"][0:run_index_lengths[0]]] = True
             else:
-                writer.writerow([lane_text + row["sample_name"], "", "", "",
+                writer.writerow([lane_text + row["sample_name_full"], "", "", "",
                                 row["i7_name"],
                                 fake_index_list[dup_index_count][0:run_index_lengths[0]],
                                 "",

@@ -32,11 +32,11 @@ lane_info = pd.DataFrame(lane_info)
 sample_tab = pd.merge(sample_tab, lane_info, on='library', how='inner')
 
 if "i5_sequence" in sample_tab:
-    to_print_sample_tab = sample_tab[['sample_name', 'i7_sequence','i5_sequence','Lane','library']]
-    to_print_sample_tab = to_print_sample_tab.rename(columns={'sample_name': 'SampleName', 'i7_sequence': 'Index1','i5_sequence': 'Index2', 'Lane': 'Lane','library': 'Project'})
+    to_print_sample_tab = sample_tab[['sample_name_full', 'i7_sequence','i5_sequence','Lane','library']]
+    to_print_sample_tab = to_print_sample_tab.rename(columns={'sample_name_full': 'SampleName', 'i7_sequence': 'Index1','i5_sequence': 'Index2', 'Lane': 'Lane','library': 'Project'})
 else:
-    to_print_sample_tab = sample_tab[['sample_name', 'i7_sequence', 'Lane', 'library']]
-    to_print_sample_tab = to_print_sample_tab.rename(columns={'sample_name': 'SampleName', 'i7_sequence': 'Index1','Lane': 'Lane', 'library': 'Project'})
+    to_print_sample_tab = sample_tab[['sample_name_full', 'i7_sequence', 'Lane', 'library']]
+    to_print_sample_tab = to_print_sample_tab.rename(columns={'sample_name_full': 'SampleName', 'i7_sequence': 'Index1','Lane': 'Lane', 'library': 'Project'})
 
 #print to csv file
 with open(snakemake.output.run_manifest, 'a') as file:
