@@ -71,10 +71,12 @@ def stats_copy_input(wildcards):
             ,demux_setting=get_demux_for_library(wildcards.library)
             ,stat_filenames=["*.html", "*.json","*.csv","*.json"])
     elif config["run_sequencer_type"] == "MGI":
-        input_list = expand(expand("{demux_setting}/FS2000/{lane}/",zip \
-            ,lane=get_lanes_for_library(wildcards.library)
-            ,demux_setting=get_demux_for_library(wildcards.library)) + "{stat_filenames}"\
-            ,stat_filenames=["SequenceStat.txt", "BarcodeStat.txt","mgi_sample_sheet*.txt"])
+        input_list = expand(["{demux_setting}/FS2000/{lane}/SequenceStat.txt",
+         "{demux_setting}/FS2000/{lane}/BarcodeStat.txt",
+         "mgi_sample_sheet_{lane}_{demux_setting}.txt"],
+            zip,
+            demux_setting=get_demux_for_library(wildcards.library),
+            lane=get_lanes_for_library(wildcards.library))
     else:
         input_list = expand("{demux_setting}/{stat_filenames}" \
             ,demux_setting=get_demux_for_library(wildcards.library)
