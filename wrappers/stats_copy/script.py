@@ -7,6 +7,7 @@ shell.executable("/bin/bash")
 import xml.etree.ElementTree as ET
 import pandas as pd
 import json
+import re
 
 out_dir_name = os.path.dirname(snakemake.output.nread_json)
 sample_tab = snakemake.params.sample_tab
@@ -23,6 +24,12 @@ if snakemake.params.sequencer_type == "AVITI":
 
 elif snakemake.params.sequencer_type == "MGI":
 
+    def extract_sample_name_MGI(text, pattern=r'^barcode(.*)$'):
+        match = re.match(pattern, text)
+        if match:
+            return match.group(1)  # Return the capturing group which ignores the prefix
+        return text  # Return text if no match is found
+
     file_paths = snakemake.params.nread_file
 
     # Dictionary to store barcode counts from each file
@@ -36,11 +43,10 @@ elif snakemake.params.sequencer_type == "MGI":
         # Clean column names by stripping any unwanted spaces
         df.columns = [col.strip() for col in df.columns]
 
-
         # Update counts in the dictionary
         for index, row in df.iterrows():
 
-            barcode = row['#Barcode']
+            barcode = extract_sample_name_MGI(row['#Barcode'])
             total_count = row['Total']
 
             if barcode in barcode_counts:
