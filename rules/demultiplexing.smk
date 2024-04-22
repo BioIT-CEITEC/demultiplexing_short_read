@@ -36,7 +36,7 @@ def fastq_mv_ready_input(wildcards):
         input_list = expand("{demux_setting}/demux_ready.txt" \
             ,demux_setting=get_demux_for_library(wildcards.library))
     elif config["run_sequencer_type"] == "MGI":
-        input_list = expand("{demux_setting}/FS2000/{lane}/demux_ready.txt",zip \
+        input_list = expand("{demux_setting}/FS2000/{lane}/demux_ready.txt" \
             ,lane=get_lanes_for_library(wildcards.library)
             ,demux_setting=get_demux_for_library(wildcards.library))
     else:

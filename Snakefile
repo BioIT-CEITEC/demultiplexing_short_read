@@ -84,40 +84,6 @@ def get_panda_sample_tab_from_config(config):
 
     return sample_tab
 
-def get_used_lanes(sample_tab,run_lane_splitting_count):
-
-    if run_lane_splitting_count != None:
-        # Extract unique libraries from sample_tab
-        libraries = sample_tab['library'].unique()
-
-        # Initialize an empty list to store the data
-        libraries_lane_usage = {}
-
-        for lib in libraries:
-            # Initialize the list for lane usage for the current library
-            lane_usage = []
-
-            for lane in range(1,run_lane_splitting_count + 1):
-                lane_key = f"lane{lane}"
-                lane_code = f"L0{lane}"
-                if sample_tab[sample_tab['library'] == lib].iloc[0][lane_key]:
-                    lane_usage.append(lane_code)
-
-
-            # Append the library name and its lane usage to the list
-            libraries_lane_usage[lib] = lane_usage
-
-
-        return libraries_lane_usage
-    else:
-        return None
-
-
-
-
-
-
-
 # sample_tab = sample_tab.set_index(pd.RangeIndex(start=1,stop=len(sample_tab.index) + 1))
 #
 # #duplicated sample name check
@@ -173,15 +139,11 @@ if "merged" in config and config["merged"]:
 
 else:
     sample_tab = get_panda_sample_tab_from_config(config)
-    #
-    # sample_tab = sample_tab.iloc[:15]
-
 
     sample_file_tab = sample_tab.reindex(sample_tab.index.repeat(sample_tab['read_output_count'])) \
         .assign(read_num=lambda x: x.groupby(['library', 'sample_name']).cumcount() + 1) \
         .reset_index(drop=True)
 
-    per_library_used_lanes = get_used_lanes(sample_file_tab,config.get("run_lane_splitting",None))
     library_names = set(sample_tab["library"])
     resulting_fastq_files = expand("{library}/raw_fastq/{sample_name}_R{read_num}.fastq.gz",zip \
         ,library=sample_file_tab.library \
@@ -189,7 +151,6 @@ else:
         ,read_num=sample_file_tab.read_num)
 
     library_output = "-"
-    # print(per_library_used_lanes)
 
 ##### wildcard_constraints #####
 wildcard_constraints:
