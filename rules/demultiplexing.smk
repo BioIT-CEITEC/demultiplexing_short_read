@@ -52,17 +52,16 @@ def fastq_mv_fastq_input(wildcards):
             ,demux_setting=get_demux_for_library(wildcards.library)
             ,sample_ID=get_sample_ID_for_library(wildcards.library,wildcards.sample_name))
     elif config["run_sequencer_type"] == "MGI":
-        input_list = expand("{demux_setting}/FS2000/{lane}/FS2000_{lane}_" + wildcards.sample_name + "___{sample_ID}_" + wildcards.read_num + ".fq.gz",zip \
+        input_list = expand("{demux_setting}/FS2000/{lane}/FS2000_{lane}_" + wildcards.sample_name + "___{sample_ID}_" + wildcards.read_num + ".fq.gz" \
             ,lane=get_lanes_for_library(wildcards.library)
             ,demux_setting=get_demux_for_library(wildcards.library)
             ,sample_ID=get_sample_ID_for_library(wildcards.library,wildcards.sample_name))
     else:
-        input_list = expand("{demux_setting}/" + wildcards.sample_name + "___{sample_ID}_S{sample_index}{lane}_R" + wildcards.read_num + "_001.fastq.gz",zip \
+        input_list = expand("{demux_setting}/" + wildcards.sample_name + "___{sample_ID}_S{sample_index}{lane}_R" + wildcards.read_num + "_001.fastq.gz" \
             ,lane=get_lanes_for_library(wildcards.library)
             ,demux_setting=get_demux_for_library(wildcards.library)
             ,sample_ID=get_sample_ID_for_library(wildcards.library,wildcards.sample_name)
             ,sample_index=get_sample_index_for_library(wildcards.library,wildcards.sample_name))
-        "{run_name}/{sample_name}_S{sample_index}_{read_num}_001.fastq.gz"
     return input_list
 
 def stats_copy_input(wildcards):
