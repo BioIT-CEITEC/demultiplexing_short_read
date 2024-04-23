@@ -19,4 +19,4 @@ if len(in_fastq_list) == 0:
 elif len(in_fastq_list) == 1:
     shell("mv " + in_fastq_list[0] + " " + snakemake.output.fastq)
 else:
-    shell("cat " + in_fastq_list + " > " + snakemake.output.fastq)
+    shell("cat " + " ".join(in_fastq_list) + " > " + snakemake.output.fastq)
