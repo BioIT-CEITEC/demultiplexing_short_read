@@ -120,21 +120,18 @@ def get_sample_tab_for_merge(config):
     if not all_contain_R3:
         primary_files = [f for f in primary_files if "_R3.fastq.gz" not in f]
 
-    sample_tab = sample_tab.loc[sample_tab.library == primary_lib_name]
-    return(sample_tab)
+    # sample_tab = sample_tab.loc[sample_tab.library == primary_lib_name]
+    return(primary_files)
 
 ##### inputs to rule all #####
 if "merged" in config and config["merged"]:
-    sample_tab = get_sample_tab_for_merge(config)
-    # TODO:
-    all_sample_fastq_files = [os.path.join(library_names,\
-                                      "qc_reports",\
-                                      re.sub("_R..fastq.gz$","",f),\
-                                      "/raw_fastqc/",\
-                                      re.sub(".fastq.gz$","_fastqc.html",f)) for f in primary_files]
-
+    primary_files = get_sample_tab_for_merge(config)
 
     library_output = list(config["library_output"].keys())[0]
+
+    all_sample_fastq_files = [os.path.join(library_output,\
+                                      "raw_fastq",\
+                                      f) for f in primary_files]
     library_names = library_output
 
 else:
