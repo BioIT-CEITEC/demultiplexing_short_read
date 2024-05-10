@@ -5,10 +5,13 @@ import re
 import csv
 import pandas as pd
 
+
+
 sample_tab = snakemake.params.sample_tab
-column_name = snakemake.params.lane
-column_name = column_name.replace("L0","lane")
-sample_tab = sample_tab[sample_tab[column_name] == True]
+if snakemake.params.config["run_lane_splitting"] != None:
+    column_name = snakemake.params.lane
+    column_name = column_name.replace("L0","lane")
+    sample_tab = sample_tab[sample_tab[column_name] == True]
 sample_tab = sample_tab[sample_tab['demux_setting'] == snakemake.params.demux]
 
 def get_sequenced_barcode_lengths(file_path):

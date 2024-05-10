@@ -37,9 +37,10 @@ def get_sequencing_run_info(file_path):
 #run the demultiplexing
 run_dir = snakemake.params.demux_data_dir
 sample_tab = snakemake.params.sample_tab
-column_name = snakemake.params.lane
-column_name = column_name.replace("L0","lane")
-sample_tab = sample_tab[sample_tab[column_name] == True]
+if snakemake.params.config["run_lane_splitting"] != None:
+    column_name = snakemake.params.lane
+    column_name = column_name.replace("L0","lane")
+    sample_tab = sample_tab[sample_tab[column_name] == True]
 sample_tab = sample_tab[sample_tab['demux_setting'] == snakemake.params.demux]
 
 tmp_run_data = os.path.join(snakemake.params.tmp_dir,"run_tmp_data",snakemake.params.lane)

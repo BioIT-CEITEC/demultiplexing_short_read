@@ -61,7 +61,7 @@ def get_panda_sample_tab_from_config_one_lib(lib_name, run_lane_splitting_count)
 
 
 def get_panda_sample_tab_from_config(config):
-    run_lane_splitting_count = config.get("run_lane_splitting",None)  # Default to 4 lanes if not specified
+    run_lane_splitting_count = config.get("run_lane_splitting",None)
     tab_list = [get_panda_sample_tab_from_config_one_lib(lib_name,run_lane_splitting_count) for lib_name in config["libraries"].keys()]
     sample_tab = pd.concat(tab_list,ignore_index=True)
 

@@ -149,7 +149,8 @@ elif config["run_sequencer_type"] == "MGI":
                 demux = "{demux}",
                 lane="{lane}",
                 sample_tab=sample_tab,
-                run_info=expand("{run_dir}/L01/BioInfo.csv",run_dir=config["run_dir"])[0]
+                run_info=expand("{run_dir}/L01/BioInfo.csv",run_dir=config["run_dir"])[0],
+                config=config
         threads: 60
         log: "logs/calDemux_{demux}_{lane}.log"
         # conda: "../wrappers/mgi_calDemux/env.yaml"
