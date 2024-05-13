@@ -106,7 +106,7 @@ def get_sample_tab_for_merge(config):
     def all_dirs_contain_suffix(suffix):
         for lib_name in config["libraries"].keys():
             lib_raw_fastq_dir = os.path.join(lib_name,"raw_fastq")
-            if not any(suffix in f for f in os.listdir(lib_raw_f2astq_dir) if
+            if not any(suffix in f for f in os.listdir(lib_raw_fastq_dir) if
                        os.path.isfile(os.path.join(lib_raw_fastq_dir,f))):
                 return False
         return True
