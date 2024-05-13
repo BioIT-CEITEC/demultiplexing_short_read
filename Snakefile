@@ -97,15 +97,16 @@ def get_panda_sample_tab_from_config(config):
 # sample_tab["slug_id"] = sample_tab.groupby("bcl2fastq_params_slug").transform(lambda x: range(1,len(x.index) + 1))["sample_name"]
 
 def get_sample_tab_for_merge(config):
-    primary_lib_name = list(config["libraries"].keys())[0]
-    primary_lib_raw_fastq_dir = os.path.join(primary_lib_name,"raw_fastq")
-    primary_files = [f for f in os.listdir(primary_lib_raw_fastq_dir) if os.path.isfile(os.path.join(primary_lib_raw_fastq_dir,f))]
+    merged_lib_name = list(config["library_output"].keys())[0]
+    lib_config = config["library_output"][merged_lib_name]
+    sample_tab = pd.DataFrame.from_dict(lib_config["samples"],orient="index")
+    sample_tab["library"] = merged_lib_name
+    sample_tab['sample_ID'] = sample_tab.index.astype(str)
 
-    # Function to check if all directories contain a file with a specific suffix
     def all_dirs_contain_suffix(suffix):
         for lib_name in config["libraries"].keys():
             lib_raw_fastq_dir = os.path.join(lib_name,"raw_fastq")
-            if not any(suffix in f for f in os.listdir(lib_raw_fastq_dir) if
+            if not any(suffix in f for f in os.listdir(lib_raw_f2astq_dir) if
                        os.path.isfile(os.path.join(lib_raw_fastq_dir,f))):
                 return False
         return True
@@ -114,24 +115,30 @@ def get_sample_tab_for_merge(config):
     all_contain_R2 = all_dirs_contain_suffix("_R2.fastq.gz")
     all_contain_R3 = all_dirs_contain_suffix("_R3.fastq.gz")
 
-    # Remove files from primary_files based on the checks
-    if not all_contain_R2:
-        primary_files = [f for f in primary_files if "_R2.fastq.gz" not in f]
-    if not all_contain_R3:
-        primary_files = [f for f in primary_files if "_R3.fastq.gz" not in f]
+    sample_tab['read_output_count'] = 1
+    if all_contain_R2:
+        sample_tab['read_output_count'] = 2
+    if all_contain_R3:
+        sample_tab['read_output_count'] = 3
 
-    # sample_tab = sample_tab.loc[sample_tab.library == primary_lib_name]
-    return(primary_files)
+    return sample_tab
+
 
 ##### inputs to rule all #####
 if "merged" in config and config["merged"]:
-    primary_files = get_sample_tab_for_merge(config)
+    sample_tab = get_sample_tab_for_merge(config)
+
+    sample_file_tab = sample_tab.reindex(sample_tab.index.repeat(sample_tab['read_output_count'])) \
+        .assign(read_num=lambda x: x.groupby(['library', 'sample_name']).cumcount() + 1) \
+        .reset_index(drop=True)
 
     library_output = list(config["library_output"].keys())[0]
 
-    all_sample_fastq_files = [os.path.join(library_output,\
-                                      "raw_fastq",\
-                                      f) for f in primary_files]
+    resulting_fastq_files = expand("{library}/raw_fastq/{sample_name}_R{read_num}.fastq.gz",zip \
+        ,library=sample_file_tab.library \
+        ,sample_name=sample_file_tab.sample_name \
+        ,read_num=sample_file_tab.read_num)
+
     library_names = library_output
 
 else:
