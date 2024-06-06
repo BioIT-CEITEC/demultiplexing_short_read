@@ -197,11 +197,11 @@ else:
         conda: "../wrappers/bcl2fastq/env.yaml"
         script: "../wrappers/bcl2fastq/script.py"
 
-
 rule fastq_mv:
     input: fastq_mv_ready_input
     output: fastq = "{library}/raw_fastq/{sample_name}_R{read_num}.fastq.gz",
-    params: fastq = fastq_mv_fastq_input
+    params: fastq = fastq_mv_fastq_input,
+            run_sequencer_type = config["run_sequencer_type"]
     threads: 1
     script: "../wrappers/fastq_mv/script.py"
 
