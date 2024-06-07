@@ -2,11 +2,13 @@ from snakemake.utils import min_version
 import pandas as pd
 import re
 import os
+from datetime import datetime
 
 min_version("5.18.0")
 configfile: "config.json"
 GLOBAL_TMPD_PATH = config["globalTmpdPath"]
 GLOBAL_REF_PATH = config["globalResources"]
+DEMUX_DATE_ID = datetime.now().strftime('%Y%m%d%H%M')
 
 #Files subdirectory check for NovaSeq outputs
 if os.path.exists(config["run_dir"] + "/Files/RTAComplete.txt"):

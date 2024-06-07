@@ -23,13 +23,25 @@ else:
     shell("cat " + " ".join(in_fastq_list) + " > " + snakemake.output.fastq)
 
 if snakemake.params.run_sequencer_type == "MGI":
-    shell("mv " + snakemake.output.fastq + " " + snakemake.output.fastq + ".tmp")
 
-    input_fastq = snakemake.output.fastq + ".tmp"
-    output_fastq = snakemake.output.fastq
-    flowcell_ID = datetime.now().strftime('%Y%m%d%H%M')
+
+    input_fastq = snakemake.output.fastq
+    output_fastq = snakemake.output.fastq + ".tmp"
+    date_id = snakemake.params.date_id
 
     # Construct the bash command
-    command = f"""zcat {input_fastq} | \
-    awk -v flowcell_ID="{flowcell_ID}" '{{if (NR % 4 == 1) {{$0 = "@" flowcell_ID substr($0, 2)}}; print}}' | gzip > {output_fastq}"""
+    # command = f"zcat {input_fastq} | awk -v flowcell_ID={date_id} '{{if (NR % 4 == 1) {{$0 = \"@\" flowcell_ID substr($0, 2)}}; print}}' | gzip > {output_fastq}"
+
+    command = (
+            "zcat " + input_fastq + " | "
+            + "sed 's/^@FS/@{}FS/'".format(date_id) + " | "
+            + "gzip > " + output_fastq
+    )
     shell(command)
+
+    command = "rm " + snakemake.output.fastq
+    shell(command)
+
+    command = "mv " + snakemake.output.fastq + ".tmp " + snakemake.output.fastq
+    shell(command)
+    # shell("mv " + snakemake.output.fastq + ".tmp " + snakemake.output.fastq)
