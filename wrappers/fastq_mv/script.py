@@ -32,9 +32,15 @@ if snakemake.params.run_sequencer_type == "MGI":
     # Construct the bash command
     # command = f"zcat {input_fastq} | awk -v flowcell_ID={date_id} '{{if (NR % 4 == 1) {{$0 = \"@\" flowcell_ID substr($0, 2)}}; print}}' | gzip > {output_fastq}"
 
+    # command = (
+    #         "zcat " + input_fastq + " | "
+    #         + "sed 's/^@FS/@{}FS/'".format(date_id) + " | "
+    #         + "gzip > " + output_fastq
+    # )
+
     command = (
             "zcat " + input_fastq + " | "
-            + "sed 's/^@FS/@{}FS/'".format(date_id) + " | "
+            + "awk 'NR % 4 == 1 {sub(/^@/, \"@" + date_id + "\")}; {print}' | "
             + "gzip > " + output_fastq
     )
     shell(command)
