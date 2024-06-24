@@ -8,6 +8,12 @@ shell.executable("/bin/bash")
 
 log_filename = str(snakemake.log)
 
+shell("conda config --add channels defaults; \
+conda config --add channels bioconda; \
+conda config --add channels conda-forge; \
+conda config --set channel_priority strict; \
+conda install -y multiqc")
+
 f = open(log_filename, 'wt')
 f.write("\n##\n## RULE: bcl2fastq \n##\n")
 f.close()
