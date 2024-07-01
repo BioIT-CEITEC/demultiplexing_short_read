@@ -145,6 +145,7 @@ elif config["run_sequencer_type"] == "MGI":
 
         params: tmp_dir=GLOBAL_TMPD_PATH,
                 executable_file_path=GLOBAL_REF_PATH + "/general/MGI_SplitBarcode-v2/SplitBarcode-v2.0.0/linux/bin/splitBarcode",
+                run_dir_id = config["run_dir"],
                 demux_data_dir = config["run_dir"] + "/{lane}/calFile",
                 demux = "{demux}",
                 lane="{lane}",

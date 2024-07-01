@@ -93,6 +93,7 @@ command = snakemake.params.executable_file_path + " -r " \
                 + " -P " + str(sequencing_run_info[3] + 1) \
                 + " --filter_param " + filter_param\
                 + " -o " + snakemake.params.demux\
+                + " --umi --cpu -N " + snakemake.params.run_dir_id\
                 + " >> " + log_filename + " 2>&1"
 f = open(log_filename, 'at')
 f.write("## COMMAND: "+command+"\n")
