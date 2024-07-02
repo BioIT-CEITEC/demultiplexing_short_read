@@ -36,9 +36,10 @@ def fastq_mv_ready_input(wildcards):
         input_list = expand("{demux_setting}/demux_ready.txt" \
             ,demux_setting=get_demux_for_library(wildcards.library))
     elif config["run_sequencer_type"] == "MGI":
-        input_list = expand("{demux_setting}/FS2000/{lane}/demux_ready.txt" \
+        input_list = expand("{demux_setting}/{run_dir_id}/{lane}/demux_ready.txt" \
             ,lane=get_lanes_for_library(wildcards.library)
-            ,demux_setting=get_demux_for_library(wildcards.library))
+            ,demux_setting=get_demux_for_library(wildcards.library)
+            ,run_dir_id = config["run_dir"])
     else:
         input_list = expand("{demux_setting}/demux_ready.txt" \
             ,demux_setting=get_demux_for_library(wildcards.library))
@@ -52,10 +53,11 @@ def fastq_mv_fastq_input(wildcards):
             ,demux_setting=get_demux_for_library(wildcards.library)
             ,sample_ID=get_sample_ID_for_library(wildcards.library,wildcards.sample_name))
     elif config["run_sequencer_type"] == "MGI":
-        input_list = expand("{demux_setting}/FS2000/{lane}/FS2000_{lane}_" + wildcards.sample_name + "___{sample_ID}_" + wildcards.read_num + ".fq.gz" \
+        input_list = expand("{demux_setting}/{run_dir_id}/{lane}/{run_dir_id}_{lane}_" + wildcards.sample_name + "___{sample_ID}_" + wildcards.read_num + ".fq.gz" \
             ,lane=get_lanes_for_library(wildcards.library)
             ,demux_setting=get_demux_for_library(wildcards.library)
-            ,sample_ID=get_sample_ID_for_library(wildcards.library,wildcards.sample_name))
+            ,sample_ID=get_sample_ID_for_library(wildcards.library,wildcards.sample_name)
+            ,run_dir_id = config["run_dir"])
     else:
         input_list = expand("{demux_setting}/" + wildcards.sample_name + "___{sample_ID}_S{sample_index}{lane}_R" + wildcards.read_num + "_001.fastq.gz" \
             ,lane=get_lanes_for_library(wildcards.library)
@@ -70,12 +72,13 @@ def stats_copy_input(wildcards):
             ,demux_setting=get_demux_for_library(wildcards.library)
             ,stat_filenames=["*.html", "*.json","*.csv","*.json"])
     elif config["run_sequencer_type"] == "MGI":
-        input_list = expand(["{demux_setting}/FS2000/{lane}/SequenceStat.txt",
-         "{demux_setting}/FS2000/{lane}/BarcodeStat.txt",
+        input_list = expand(["{demux_setting}/{run_dir_id}/{lane}/SequenceStat.txt",
+         "{demux_setting}/{run_dir_id}/{lane}/BarcodeStat.txt",
          "mgi_sample_sheet_{lane}_{demux_setting}.txt"],
             zip,
             demux_setting=get_demux_for_library(wildcards.library),
-            lane=get_lanes_for_library(wildcards.library))
+            lane=get_lanes_for_library(wildcards.library),
+            run_dir_id = config["run_dir"])
     else:
         input_list = expand("{demux_setting}/{stat_filenames}" \
             ,demux_setting=get_demux_for_library(wildcards.library)
@@ -88,9 +91,10 @@ def nread_file_input(wildcards):
         input_list = expand("{demux_setting}/IndexAssignment.csv" \
             ,demux_setting=get_demux_for_library(wildcards.library))
     elif config["run_sequencer_type"] == "MGI":
-        input_list = expand("{demux_setting}/FS2000/{lane}/BarcodeStat.txt",zip \
+        input_list = expand("{demux_setting}/{run_dir_id}/{lane}/BarcodeStat.txt",zip \
             ,lane=get_lanes_for_library(wildcards.library)
-            ,demux_setting=get_demux_for_library(wildcards.library))
+            ,demux_setting=get_demux_for_library(wildcards.library)
+            ,run_dir_id = config["run_dir"])
     else:
         input_list = expand("{demux_setting}/Stats/DemultiplexingStats.xml" \
             ,demux_setting=get_demux_for_library(wildcards.library))
@@ -139,9 +143,10 @@ elif config["run_sequencer_type"] == "MGI":
 
     rule mgi_calDemux:
         input:  sample_sheet="mgi_sample_sheet_{lane}_{demux}.txt"
-        output: demultiplex_complete = "{demux}/FS2000/{lane}/demux_ready.txt",
-                stats=expand("{{demux}}/FS2000/{{lane}}/{stat_filenames}.txt" \
-                                            ,stat_filenames=["SequenceStat", "BarcodeStat"])
+        output: demultiplex_complete = expand("{{demux}}/{run_dir_id}/{{lane}}/demux_ready.txt" \
+                                            ,run_dir_id = config["run_dir"])[0],
+                stats = expand("{{demux}}/{run_dir_id}/{{lane}}/{stat_filenames}.txt" \
+                                            ,stat_filenames=["SequenceStat", "BarcodeStat"],run_dir_id = config["run_dir"])
 
         params: tmp_dir=GLOBAL_TMPD_PATH,
                 executable_file_path=GLOBAL_REF_PATH + "/general/MGI_SplitBarcode-v2/SplitBarcode-v2.0.0/linux/bin/splitBarcode",
@@ -156,20 +161,6 @@ elif config["run_sequencer_type"] == "MGI":
         log: "logs/calDemux_{demux}_{lane}.log"
         # conda: "../wrappers/mgi_calDemux/env.yaml"
         script: "../wrappers/mgi_calDemux/script.py"
-
-
-    # def mgi_stats_copy_input(wildcards):
-    #     return expand("{demux_setting}/FS2000/{lane}/{stat_filenames}.txt" \
-    #         ,lane=get_lanes_for_library(wildcards.library)
-    #         ,demux_setting=get_demux_for_library(wildcards.library)
-    #         ,stat_filenames = ["SequenceStat", "BarcodeStat"])
-    #
-    # rule mgi_stats_copy:
-    #     input: mgi_stats_copy_input
-    #     output: "{library}/sequencing_run_info/Stats.json",
-    #     log: run="{library}/sequencing_run_info/stats_copy.log",
-    #     shell:
-    #         "cat {input} > {output}"
 
 else:
     rule illumina_create_samplesheet:

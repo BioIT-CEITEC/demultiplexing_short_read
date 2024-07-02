@@ -22,32 +22,32 @@ elif len(in_fastq_list) == 1:
 else:
     shell("cat " + " ".join(in_fastq_list) + " > " + snakemake.output.fastq)
 
-if snakemake.params.run_sequencer_type == "MGI":
-
-
-    input_fastq = snakemake.output.fastq
-    output_fastq = snakemake.output.fastq + ".tmp"
-    date_id = snakemake.params.date_id
-
-    # Construct the bash command
-    # command = f"zcat {input_fastq} | awk -v flowcell_ID={date_id} '{{if (NR % 4 == 1) {{$0 = \"@\" flowcell_ID substr($0, 2)}}; print}}' | gzip > {output_fastq}"
-
-    # command = (
-    #         "zcat " + input_fastq + " | "
-    #         + "sed 's/^@FS/@{}FS/'".format(date_id) + " | "
-    #         + "gzip > " + output_fastq
-    # )
-
-    command = (
-            "zcat " + input_fastq + " | "
-            + "awk 'NR % 4 == 1 {sub(/^@/, \"@" + date_id + "\")}; {print}' | "
-            + "gzip > " + output_fastq
-    )
-    shell(command)
-
-    command = "rm " + snakemake.output.fastq
-    shell(command)
-
-    command = "mv " + snakemake.output.fastq + ".tmp " + snakemake.output.fastq
-    shell(command)
-    # shell("mv " + snakemake.output.fastq + ".tmp " + snakemake.output.fastq)
+# if snakemake.params.run_sequencer_type == "MGI":
+#
+#
+#     input_fastq = snakemake.output.fastq
+#     output_fastq = snakemake.output.fastq + ".tmp"
+#     date_id = snakemake.params.date_id
+#
+#     # Construct the bash command
+#     # command = f"zcat {input_fastq} | awk -v flowcell_ID={date_id} '{{if (NR % 4 == 1) {{$0 = \"@\" flowcell_ID substr($0, 2)}}; print}}' | gzip > {output_fastq}"
+#
+#     # command = (
+#     #         "zcat " + input_fastq + " | "
+#     #         + "sed 's/^@FS/@{}FS/'".format(date_id) + " | "
+#     #         + "gzip > " + output_fastq
+#     # )
+#
+#     command = (
+#             "zcat " + input_fastq + " | "
+#             + "awk 'NR % 4 == 1 {sub(/^@/, \"@" + date_id + "\")}; {print}' | "
+#             + "gzip > " + output_fastq
+#     )
+#     shell(command)
+#
+#     command = "rm " + snakemake.output.fastq
+#     shell(command)
+#
+#     command = "mv " + snakemake.output.fastq + ".tmp " + snakemake.output.fastq
+#     shell(command)
+#     # shell("mv " + snakemake.output.fastq + ".tmp " + snakemake.output.fastq)
