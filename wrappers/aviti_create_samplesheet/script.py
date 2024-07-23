@@ -19,8 +19,10 @@ for lib_name, lib in config.get('libraries', {}).items():
         if config["run_lane_splitting"] != None:
             if lib["lib_lane_splitting"]["lane1"] == True and lib["lib_lane_splitting"]["lane2"] == False:
                 lane = "1"
-            if lib["lib_lane_splitting"]["lane2"] == True and lib["lib_lane_splitting"]["lane1"] == False:
+            elif lib["lib_lane_splitting"]["lane2"] == True and lib["lib_lane_splitting"]["lane1"] == False:
                 lane = "2"
+            else:
+                lane = "1+2"
         else:
             lane = "1+2"
 
