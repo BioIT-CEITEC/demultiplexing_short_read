@@ -66,7 +66,7 @@ sample_tab = sample_tab[sample_tab['demux_setting'] == snakemake.params.demux_se
 
 date = str(snakemake.params.date)
 with open(snakemake.output.samplesheet_csv, mode='w') as samplesheet_file:
-    writer = csv.writer(samplesheet_file)
+    writer = csv.writer(samplesheet_file,quoting=csv.QUOTE_NONE, escapechar='\\')
     writer.writerow(['[Header]'])
     writer.writerow(['IEMFileVersion', '4'])
     writer.writerow(['Experiment name', snakemake.params.run_name])
