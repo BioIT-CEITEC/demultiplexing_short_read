@@ -79,6 +79,12 @@ def get_panda_sample_tab_from_config(config):
     combination_to_demux = {combination: f'demux_{i + 1}' for i, combination in
                             enumerate(sample_tab['combination_id'].unique())}
     sample_tab['demux_setting'] = sample_tab['combination_id'].map(combination_to_demux)
+
+    # Sort by lanes (lane1, lane2, ..., laneN) in descending order so that rows with lane1=True appear first, then lane2=True, etc.
+    if run_lane_splitting_count != None:
+        lane_columns = [f"lane{lane}" for lane in range(1, run_lane_splitting_count + 1)]
+        sample_tab.sort_values(by=lane_columns, ascending=False, inplace=True)
+
     sample_tab['sample_index'] = sample_tab.groupby('demux_setting').cumcount() + 1
 
     # Optionally, you can drop the temporary 'combination_id' column if it's no longer needed
