@@ -151,6 +151,7 @@ if "merged" in config and config["merged"]:
 
 else:
     sample_tab = get_panda_sample_tab_from_config(config)
+    sample_tab.to_csv('sample_tab.csv', index=False)
 
     sample_file_tab = sample_tab.reindex(sample_tab.index.repeat(sample_tab['read_output_count'])) \
         .assign(read_num=lambda x: x.groupby(['library', 'sample_name']).cumcount() + 1) \
