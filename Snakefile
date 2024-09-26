@@ -179,8 +179,10 @@ rule all:
 
 ##### Modules #####
 
-include: "rules/merge.smk"
-include: "rules/demultiplexing.smk"
+if "merged" in config and config["merged"]:
+    include: "rules/merge.smk"
+else:
+    include: "rules/demultiplexing.smk"
 include: "rules/fastqc.smk"
 # include: "rules/check_adaptors.smk"
 
