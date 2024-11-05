@@ -138,9 +138,8 @@ elif config["run_sequencer_type"] == "MGI":
         params: lane="{lane}",
                 demux= "{demux}",
                 sample_tab=sample_tab,
-                config=config,
-                barcode_mismatches=config["barcode_mismatches"][0]
-        script: "../wrappers/mgi_create_samplesheet/script.py"
+                config=config        
+script: "../wrappers/mgi_create_samplesheet/script.py"
 
     rule mgi_calDemux:
         input:  sample_sheet="mgi_sample_sheet_{lane}_{demux}.txt"
