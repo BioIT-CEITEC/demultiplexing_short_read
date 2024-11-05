@@ -139,7 +139,7 @@ elif config["run_sequencer_type"] == "MGI":
                 demux= "{demux}",
                 sample_tab=sample_tab,
                 config=config        
-script: "../wrappers/mgi_create_samplesheet/script.py"
+        script: "../wrappers/mgi_create_samplesheet/script.py"
 
     rule mgi_calDemux:
         input:  sample_sheet="mgi_sample_sheet_{lane}_{demux}.txt"
