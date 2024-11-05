@@ -37,6 +37,10 @@ def get_sequencing_run_info(file_path):
 #run the demultiplexing
 run_dir = snakemake.params.demux_data_dir
 sample_tab = snakemake.params.sample_tab
+mgi_setting = sample_tab.iloc[0].to_dict()
+
+barcode_mismatches = mgi_setting["barcode_mismatches"]
+
 if snakemake.params.config["run_lane_splitting"] != None:
     column_name = snakemake.params.lane
     column_name = column_name.replace("L0","lane")
@@ -82,9 +86,9 @@ command = snakemake.params.executable_file_path + " -r " \
                 + " -F " + tmp_run_data \
                 + " -B " + snakemake.input.sample_sheet \
                 + " -i " + str(sequencing_run_info[2] + 1 + sequencing_run_info[3] + 1 + 1) \
-                + " " + str(min(sequencing_run_info[1],sample_tab['i5_sequence'].apply(len).min())) + " " + str(snakemake.params.barcode_mismatches) \
+                + " " + str(min(sequencing_run_info[1],sample_tab['i5_sequence'].apply(len).min())) + " " + str(barcode_mismatches) \
                 + " -i " + str(sequencing_run_info[2] + 1 + sequencing_run_info[3] + 1 + 1 + sequencing_run_info[1]) \
-                + " " + str(min(sequencing_run_info[0],sample_tab['i7_sequence'].apply(len).min())) + " " + str(snakemake.params.barcode_mismatches) \
+                + " " + str(min(sequencing_run_info[0],sample_tab['i7_sequence'].apply(len).min())) + " " + str(barcode_mismatches) \
                 + " -U " + snakemake.params.lane.replace("L0","") \
                 + " -C " + str(sequencing_run_info[2] + 1 + sequencing_run_info[3] + 1 + sequencing_run_info[1] + sequencing_run_info[0]) \
                 + " --Col " + "6" \

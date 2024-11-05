@@ -8,8 +8,7 @@
       "{run_dir}/*"
     ],
     "outputs": [
-      "raw_fastq/{sample}*fastq*",
-      "logs/*"
+      "raw_fastq/{sample}*fastq*"
     ],
     "run_parameters": {
       "cpu": 30,
