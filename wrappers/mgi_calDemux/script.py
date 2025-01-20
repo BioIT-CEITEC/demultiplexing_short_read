@@ -94,7 +94,7 @@ command = snakemake.params.executable_file_path + " -r " \
                 + " --Col " + "6" \
                 + " --Row " + "72" \
                 + " -E " + "3" \
-                + " -P " + str(sequencing_run_info[3] + 1) \
+                + " -P " + str(sequencing_run_info[2] + 1) \
                 + " --filter_param " + filter_param\
                 + " -o " + snakemake.params.demux\
                 + " --umi --cpu -N " + snakemake.params.run_dir_id\
