@@ -1,13 +1,13 @@
 rule merge:
     output: res_file = library_output + "/raw_fastq/{filename}",
+    threads: 100
     shell:
         "cat */raw_fastq/{wildcards.filename} > {output.res_file}"
 
 
 rule create_read_count_stats:
-    input: all_sample_inputs,
-    output: library_output+"/sequencing_run_info/Stats.json"
+    input: fastq_files = resulting_fastq_files,
+    output: library_output + "/sequencing_run_info/samplesNumberReads.json"
     params: config = config,
-            library_output = library_output,
-            lib_name = library_output+"/raw_fastq/"
+            lib_name = library_output,
     script: "../wrappers/create_read_count_stats/script.py"

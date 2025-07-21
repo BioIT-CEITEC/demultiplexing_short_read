@@ -1,11 +1,13 @@
 {
   "workflow_description": {
-    "name":"bcl2fastq",
+    "name":"demultiplexing_short_read",
     "version": 1.0,
-    "label":"Bcl2fastq, demultiplexing and UMI processing",
+    "label":"Demultiplexing of short-read run",
     "type":"run_demultiplexing",
-    "inputs":"{run_dir}/*",
-    "outputs":[
+    "inputs":[
+      "{run_dir}/*"
+    ],
+    "outputs": [
       "raw_fastq/{sample}*fastq*"
     ],
     "run_parameters": {
@@ -17,6 +19,8 @@
     ]
   },
   "general_params": [
+    "run_lane_splitting",
+    "lib_lane_splitting",
     "sample_name",
     "i7_name",
     "i7_sequence",
@@ -24,62 +28,144 @@
     "i5_sequence",
     "run_forward_read_length",
     "run_reverse_read_length",
-    "lib_forward_read_length",
-    "lib_reverse_read_length",
     "run_dir",
     "run_date",
-    "run_name"
+    "run_name",
+    "run_sequencer_type"
   ],
   "gui_params" : {
-    "primary": {
-      "UMI": {
-        "label": "UMI",
-        "type": "enum",
-        "default": "no_umi",
-        "list": {
-          "no_umi": "No UMI",
-          "BRONCO": "BRONCO",
-          "Quantseq FWD": "Quantseq FWD",
-          "CORALL": "CORALL",
-          "custom_umi": "Custom specified UMI",
-          "CS_UMI": "CS_UMI",
-          "CS_UMI_sep_file": "CS_UMI_sep_file",
-          "IDT": "IDT",
-          "BRB": "BRB",
-          "LYNX": "LYNX",
-          "Qiaseq": "Qiaseq",
-          "TruSight_Oncology": "TruSight Oncology UMI"
-        }
-      }
-    },
+    "primary": {},
     "detailed": {
+      "specify_demultiplexing_detailed": {
+        "label": "Specify demultiplexing details.",
+        "type": "bool",
+        "default": false
+      },
       "barcode_mismatches": {
        "label": "barcode_mismatches",
         "type": "int",
-        "default": 0
-      },
-      "base_mask_field": {
-       "label": "Base mask field",
-        "type": "string",
-        "default": "",
+        "default": 0,
         "conditions": {
-          "value": {
-            "UMI": {
-              "BRONCO": "y*,I*,y*,y*",
-              "LYNX": "y*,I*,y*,y*"
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
             }
           }
         }
       },
-      "no_lane_splitting": {
-        "label": "No lane splitting",
-        "type": "bool",
-        "default": true
-      },
-      "additional_options": {
-        "label": "Additional options to bcl2fastq call",
+      "AVITI_R1FastQMask": {
+       "label": "AVITI - R1 Base mask field",
         "type": "string",
-        "default": ""
+        "default": "",
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
+            }
+          }
+        }
+      },
+      "AVITI_R2FastQMask": {
+       "label": "AVITI - R2 Base mask field",
+        "type": "string",
+        "default": "",
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
+            }
+          }
+        }
+      },
+      "AVITI_I1Mask": {
+       "label": "AVITI - I1 Base mask field",
+        "type": "string",
+        "default": "",
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
+            }
+          }
+        }
+      },
+      "AVITI_I2Mask": {
+       "label": "AVITI - I2 Base mask field",
+        "type": "string",
+        "default": "",
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
+            }
+          }
+        }
+      },
+      "AVITI_UmiMask": {
+       "label": "AVITI - UMI Base mask field",
+        "type": "string",
+        "default": "",
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
+            }
+          }
+        }
+      },
+      "illumina_basemask": {
+        "label": "Illumina - bcl2fastq basemask",
+        "type": "string",
+        "default": "",
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
+            }
+          }
+        }
+      },
+      "demultiplex_additional_options": {
+        "label": "Additional custom options for demultiplexing",
+        "type": "string",
+        "default": "",
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
+            }
+          }
+        }
+      },
+      "MGI_filter_param": {
+        "label": "MGI - filter_param option to calDemux",
+        "type": "string",
+        "default": "",
+        "conditions": {
+          "relevance": {
+            "operand": "equal",
+            "negation": false,
+            "values": {
+              "specify_demultiplexing_detailed": true
+            }
+          }
+        }
       }
     }
   }
