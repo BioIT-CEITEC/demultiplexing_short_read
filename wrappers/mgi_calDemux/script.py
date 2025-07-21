@@ -82,6 +82,8 @@ if filter_param == "":
 # if fastq_output_dir == "":
 #     fastq_output_dir = "."
 
+additional_options = sample_tab.iloc[0]["demultiplex_additional_options"]
+
 command = snakemake.params.executable_file_path + " -r " \
                 + " -F " + tmp_run_data \
                 + " -B " + snakemake.input.sample_sheet \
@@ -98,6 +100,7 @@ command = snakemake.params.executable_file_path + " -r " \
                 + " --filter_param " + filter_param\
                 + " -o " + snakemake.params.demux\
                 + " --umi --cpu -N " + snakemake.params.run_dir_id\
+                + " " + str(additional_options) \
                 + " >> " + log_filename + " 2>&1"
 f = open(log_filename, 'at')
 f.write("## COMMAND: "+command+"\n")

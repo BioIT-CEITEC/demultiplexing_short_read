@@ -139,8 +139,8 @@
           }
         }
       },
-      "illumina_additional_options": {
-        "label": "Illumina - additional options to bcl2fastq",
+      "demultiplex_additional_options": {
+        "label": "Additional custom options for demultiplexing",
         "type": "string",
         "default": "",
         "conditions": {

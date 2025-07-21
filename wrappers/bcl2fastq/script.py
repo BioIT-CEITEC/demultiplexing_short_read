@@ -48,7 +48,7 @@ else:
   no_lane_splitting = ""
 
 barcode_mismatches = bcl2fastq_setting["barcode_mismatches"]
-additional_options = bcl2fastq_setting["illumina_additional_options"]
+additional_options = bcl2fastq_setting["demultiplex_additional_options"]
 
 run_dir = snakemake.params.run_dir
 

@@ -47,8 +47,16 @@ def format_basemask_settings():
         setting_str = f'--settings "{setting["SettingName"]},{setting["Value"]}"'
         settings_strs.append(setting_str)
 
+    
+    settings_strs.append(setting_dict["demultiplex_additional_options"])
     # Join all settings strings into a single command line argument
     command_line_arg = " ".join(settings_strs)
+
+    if len(command_line_arg) == 0:
+        command_line_arg = setting_dict["demultiplex_additional_options"]
+    elif setting_dict["demultiplex_additional_options"] == "":
+        command_line_arg += " " + str(setting_dict["demultiplex_additional_options"])
+
     return command_line_arg
 
 
