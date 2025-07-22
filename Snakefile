@@ -58,6 +58,7 @@ def get_panda_sample_tab_from_config_one_lib(lib_name, run_lane_splitting_count)
             sample_tab[key] = value
 
     sample_tab["barcode_mismatches"] = lib_config["barcode_mismatches"]
+    sample_tab["demultiplex_additional_options"] = lib_config["demultiplex_additional_options"]
 
     return sample_tab
 
