@@ -28,6 +28,8 @@
     "i5_sequence",
     "run_forward_read_length",
     "run_reverse_read_length",
+    "lib_forward_read_length",
+    "lib_reverse_read_length",
     "run_dir",
     "run_date",
     "run_name",
