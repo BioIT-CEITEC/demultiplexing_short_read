@@ -2,6 +2,7 @@
 # wrapper for rule: fastq_mv
 #############################################################
 import os
+import re
 from snakemake.shell import shell
 from datetime import datetime
 
@@ -17,37 +18,47 @@ for in_file in snakemake.params.fastq:
 
 if len(in_fastq_list) == 0:
     shell("touch " + snakemake.output.fastq)
-elif len(in_fastq_list) == 1:
-    shell("mv " + in_fastq_list[0] + " " + snakemake.output.fastq)
 else:
-    shell("cat " + " ".join(in_fastq_list) + " > " + snakemake.output.fastq)
-
-# if snakemake.params.run_sequencer_type == "MGI":
-#
-#
-#     input_fastq = snakemake.output.fastq
-#     output_fastq = snakemake.output.fastq + ".tmp"
-#     date_id = snakemake.params.date_id
-#
-#     # Construct the bash command
-#     # command = f"zcat {input_fastq} | awk -v flowcell_ID={date_id} '{{if (NR % 4 == 1) {{$0 = \"@\" flowcell_ID substr($0, 2)}}; print}}' | gzip > {output_fastq}"
-#
-#     # command = (
-#     #         "zcat " + input_fastq + " | "
-#     #         + "sed 's/^@FS/@{}FS/'".format(date_id) + " | "
-#     #         + "gzip > " + output_fastq
-#     # )
-#
-#     command = (
-#             "zcat " + input_fastq + " | "
-#             + "awk 'NR % 4 == 1 {sub(/^@/, \"@" + date_id + "\")}; {print}' | "
-#             + "gzip > " + output_fastq
-#     )
-#     shell(command)
-#
-#     command = "rm " + snakemake.output.fastq
-#     shell(command)
-#
-#     command = "mv " + snakemake.output.fastq + ".tmp " + snakemake.output.fastq
-#     shell(command)
-#     # shell("mv " + snakemake.output.fastq + ".tmp " + snakemake.output.fastq)
+    # Determine target read length based on read number
+    # Extract read number from output filename
+    read_num_match = re.search(r'_R(\d+)\.fastq\.gz$', snakemake.output.fastq)
+    if read_num_match:
+        read_num = int(read_num_match.group(1))
+    else:
+        raise ValueError(f"Could not extract read number from filename: {snakemake.output.fastq}")
+    
+    # Get the appropriate read length
+    if read_num == 1:
+        target_length = snakemake.params.lib_forward_read_length
+    elif read_num == 2:
+        target_length = snakemake.params.lib_reverse_read_length
+    else:
+        # For read 3 or higher (e.g., UMI reads), use forward read length as default
+        target_length = snakemake.params.lib_forward_read_length
+    
+    # Concatenate input files if multiple
+    if len(in_fastq_list) == 1:
+        concatenated_fastq = in_fastq_list[0]
+    else:
+        concatenated_fastq = snakemake.output.fastq + ".tmp_concat"
+        shell("cat " + " ".join(in_fastq_list) + " > " + concatenated_fastq)
+    
+    # If target_length is 0 or None, just copy/move the file without trimming
+    if target_length == 0 or target_length is None:
+        if len(in_fastq_list) == 1:
+            shell("mv " + concatenated_fastq + " " + snakemake.output.fastq)
+        else:
+            shell("mv " + concatenated_fastq + " " + snakemake.output.fastq)
+    else:
+        # Use cutadapt to trim reads to target length
+        cutadapt_cmd = (
+            f"cutadapt "
+            f"--length {target_length} "
+            f"--output {snakemake.output.fastq} "
+            f"{concatenated_fastq}"
+        )
+        shell(cutadapt_cmd)
+        
+        # Clean up temporary concatenated file if created
+        if len(in_fastq_list) > 1:
+            shell("rm " + concatenated_fastq)

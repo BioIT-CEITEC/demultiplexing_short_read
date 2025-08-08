@@ -31,6 +31,16 @@ def get_sample_ID_for_library(library,sample_name):
     sample_ID = sample_tab.loc[(sample_tab['library'] == library) & (sample_tab['sample_name'] == sample_name)].iloc[0]['sample_ID']
     return sample_ID
 
+def get_lib_read_length_for_library(library, read_type):
+    """Get the library-specific read length for forward or reverse reads"""
+    if read_type == 'forward':
+        read_length = sample_tab.loc[sample_tab['library'] == library].iloc[0]['lib_forward_read_length']
+    elif read_type == 'reverse':
+        read_length = sample_tab.loc[sample_tab['library'] == library].iloc[0]['lib_reverse_read_length']
+    else:
+        raise ValueError("read_type must be 'forward' or 'reverse'")
+    return read_length
+
 def fastq_mv_ready_input(wildcards):
     if config["run_sequencer_type"] == "AVITI":
         input_list = expand("{demux_setting}/demux_ready.txt" \
@@ -194,8 +204,11 @@ rule fastq_mv:
     output: fastq = "{library}/raw_fastq/{sample_name}_R{read_num}.fastq.gz",
     params: fastq = fastq_mv_fastq_input,
             run_sequencer_type = config["run_sequencer_type"],
-            date_id = DEMUX_DATE_ID
+            date_id = DEMUX_DATE_ID,
+            lib_forward_read_length = lambda wildcards: get_lib_read_length_for_library(wildcards.library, 'forward'),
+            lib_reverse_read_length = lambda wildcards: get_lib_read_length_for_library(wildcards.library, 'reverse')
     threads: 1
+    conda: "../wrappers/fastq_mv/env.yaml"
     script: "../wrappers/fastq_mv/script.py"
 
 rule stats_copy:

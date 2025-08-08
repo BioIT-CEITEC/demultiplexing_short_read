@@ -23,6 +23,10 @@ def get_panda_sample_tab_from_config_one_lib(lib_name, run_lane_splitting_count)
     sample_tab['sample_ID'] = sample_tab.index.astype(str)
     sample_tab['sample_name_full'] = sample_tab['sample_name'] + '___' + sample_tab['sample_ID']
 
+    # add library size
+    sample_tab['lib_forward_read_length'] = lib_config["lib_forward_read_length"]
+    sample_tab['lib_reverse_read_length'] = lib_config["lib_reverse_read_length"]
+
     # Adding the read output counts column
     sample_tab['read_output_count'] = sample_tab.apply(lambda row: 1 if config[
                                                                             "run_reverse_read_length"] == 0 else 2,axis=1)
