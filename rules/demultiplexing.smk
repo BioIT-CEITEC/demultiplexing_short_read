@@ -208,6 +208,7 @@ rule fastq_mv:
             lib_forward_read_length = lambda wildcards: get_lib_read_length_for_library(wildcards.library, 'forward'),
             lib_reverse_read_length = lambda wildcards: get_lib_read_length_for_library(wildcards.library, 'reverse')
     threads: 1
+    log:   "logs/{library}/{sample_name}_R{read_num}.log"
     conda: "../wrappers/fastq_mv/env.yaml"
     script: "../wrappers/fastq_mv/script.py"
 

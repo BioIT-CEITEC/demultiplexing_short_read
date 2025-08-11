@@ -8,8 +8,21 @@ from datetime import datetime
 
 shell.executable("/bin/bash")
 
+log_filename = str(snakemake.log)
+
+f = open(log_filename, 'wt')
+f.write("\n##\n## RULE: fastq_mv \n##\n")
+f.close()
+
 #create output dir
-shell("mkdir -p " + os.path.dirname(snakemake.output.fastq))
+
+command = "mkdir -p " + os.path.dirname(snakemake.output.fastq)
+f = open(log_filename, 'at')
+f.write("## COMMAND: "+command+"\n")
+f.close()
+shell(command)
+
+
 
 in_fastq_list = []
 for in_file in snakemake.params.fastq:
@@ -17,7 +30,11 @@ for in_file in snakemake.params.fastq:
         in_fastq_list.append(in_file)
 
 if len(in_fastq_list) == 0:
-    shell("touch " + snakemake.output.fastq)
+    command = "touch " + snakemake.output.fastq
+    f = open(log_filename, 'at')
+    f.write("## COMMAND: "+command+"\n")
+    f.close()
+    shell(command)
 else:
     # Determine target read length based on read number
     # Extract read number from output filename
@@ -41,14 +58,19 @@ else:
         concatenated_fastq = in_fastq_list[0]
     else:
         concatenated_fastq = snakemake.output.fastq + ".tmp_concat"
-        shell("cat " + " ".join(in_fastq_list) + " > " + concatenated_fastq)
+        command = "cat " + " ".join(in_fastq_list) + " > " + concatenated_fastq
+        f = open(log_filename, 'at')
+        f.write("## COMMAND: "+command+"\n")
+        f.close()
+        shell(command)
     
     # If target_length is 0 or None, just copy/move the file without trimming
     if target_length == 0 or target_length is None:
-        if len(in_fastq_list) == 1:
-            shell("mv " + concatenated_fastq + " " + snakemake.output.fastq)
-        else:
-            shell("mv " + concatenated_fastq + " " + snakemake.output.fastq)
+        command = "mv " + concatenated_fastq + " " + snakemake.output.fastq
+        f = open(log_filename, 'at')
+        f.write("## COMMAND: "+command+"\n")
+        f.close()
+        shell(command)
     else:
         # Use cutadapt to trim reads to target length
         cutadapt_cmd = (
@@ -57,8 +79,15 @@ else:
             f"--output {snakemake.output.fastq} "
             f"{concatenated_fastq}"
         )
+        f = open(log_filename, 'at')
+        f.write("## COMMAND: "+cutadapt_cmd+"\n")
+        f.close()
         shell(cutadapt_cmd)
         
         # Clean up temporary concatenated file if created
         if len(in_fastq_list) > 1:
-            shell("rm " + concatenated_fastq)
+            command = "rm " + concatenated_fastq
+            f = open(log_filename, 'at')
+            f.write("## COMMAND: "+command+"\n")
+            f.close()
+            shell(command)
