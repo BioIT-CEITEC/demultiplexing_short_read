@@ -50,8 +50,8 @@ else:
     elif read_num == 2:
         target_length = snakemake.params.lib_reverse_read_length
     else:
-        # For read 3 or higher (e.g., UMI reads), use forward read length as default
-        target_length = snakemake.params.lib_forward_read_length
+        # For read 3 or higher (e.g., UMI reads), do not set any size, so it won't be trimmed
+        target_length = None
     
     # Concatenate input files if multiple
     if len(in_fastq_list) == 1:
