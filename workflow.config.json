@@ -38,6 +38,11 @@
   "gui_params" : {
     "primary": {},
     "detailed": {
+      "cut_reads_to_lib_size": {
+        "label": "Cut reads to lib. size.",
+        "type": "bool",
+        "default": false
+      },
       "specify_demultiplexing_detailed": {
         "label": "Specify demultiplexing details.",
         "type": "bool",
