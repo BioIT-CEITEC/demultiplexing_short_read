@@ -204,7 +204,7 @@ rule fastq_mv:
     output: fastq = "{library}/raw_fastq/{sample_name}_R{read_num}.fastq.gz",
     params: fastq = fastq_mv_fastq_input,
             run_sequencer_type = config["run_sequencer_type"],
-            cut_reads_to_lib_size = config["cut_reads_to_lib_size"],
+            cut_reads_to_lib_size = lambda wildcards: sample_tab.loc[sample_tab['library'] == wildcards.library, 'cut_reads_to_lib_size'].iloc[0],
             date_id = DEMUX_DATE_ID,
             lib_forward_read_length = lambda wildcards: get_lib_read_length_for_library(wildcards.library, 'forward'),
             lib_reverse_read_length = lambda wildcards: get_lib_read_length_for_library(wildcards.library, 'reverse')
