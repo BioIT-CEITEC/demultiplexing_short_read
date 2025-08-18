@@ -28,6 +28,8 @@
     "i5_sequence",
     "run_forward_read_length",
     "run_reverse_read_length",
+    "lib_forward_read_length",
+    "lib_reverse_read_length",
     "run_dir",
     "run_date",
     "run_name",
@@ -36,6 +38,11 @@
   "gui_params" : {
     "primary": {},
     "detailed": {
+      "cut_reads_to_lib_size": {
+        "label": "Cut reads to lib. size.",
+        "type": "bool",
+        "default": false
+      },
       "specify_demultiplexing_detailed": {
         "label": "Specify demultiplexing details.",
         "type": "bool",
