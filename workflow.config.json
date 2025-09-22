@@ -11,8 +11,8 @@
       "raw_fastq/{sample}*fastq*"
     ],
     "run_parameters": {
-      "cpu": 30,
-      "memory": 128
+      "cpu": 40,
+      "memory": 168
     },
     "run_outputs":[
       "{library}/sequencing_run_info/*"
