@@ -11,7 +11,7 @@
       "raw_fastq/{sample}*fastq*"
     ],
     "run_parameters": {
-      "cpu": 40,
+      "cpu": 30,
       "memory": 168
     },
     "run_outputs":[
