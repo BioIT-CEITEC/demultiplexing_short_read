@@ -120,7 +120,7 @@ if config["run_sequencer_type"] == "AVITI":
         params: tmp_dir = GLOBAL_TMPD_PATH,
                 run_dir=config["run_dir"],
                 sample_tab= lambda wildcards: sample_tab[sample_tab['demux_setting'] == wildcards.demux_setting],
-        threads: 30
+        threads: 20
         log:    "logs/{demux_setting}_Bases2Fastq.log"
         script: "../wrappers/aviti_bases2fastq/script.py"
 
