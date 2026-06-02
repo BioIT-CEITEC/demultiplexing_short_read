@@ -118,6 +118,7 @@ command = tmp_tool_dir + "/bases2fastq " + tmp_run_data \
                  + " -r " + snakemake.input.run_manifest \
                  + " -p " + str(snakemake.threads) \
                  + " --force-index-orientation " + command_line_arg \
+                 + " --num-unassigned 500" \
                  + " >> " + log_filename + " 2>&1"
 f = open(log_filename, 'at')
 f.write("## COMMAND: "+command+"\n")
