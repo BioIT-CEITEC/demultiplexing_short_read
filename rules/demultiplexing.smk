@@ -128,6 +128,7 @@ if config["run_sequencer_type"] == "AVITI":
                 #         ,library = sample_tab[sample_tab['demux_setting'] == wildcards.demux_setting,'library'].unique().tolist() \
                 #         ,run_info_suffix = ["QC.html","Metrics.csv","RunStats.json","IndexAssignment.csv"])
         params: tmp_dir = GLOBAL_TMPD_PATH,
+                ref_dir = GLOBAL_REF_PATH,
                 run_dir=config["run_dir"],
                 sample_tab= lambda wildcards: sample_tab[sample_tab['demux_setting'] == wildcards.demux_setting],
         threads: 20

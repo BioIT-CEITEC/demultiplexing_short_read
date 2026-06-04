@@ -65,17 +65,25 @@ tmp_tool_dir = os.path.join(snakemake.params.tmp_dir,"bases2fastq_exec")
 if not os.path.exists(tmp_tool_dir):
     os.makedirs(tmp_tool_dir)
 
-command = "wget https://bases2fastq-release.s3.amazonaws.com/bases2fastq-latest.tar.gz -O " + tmp_tool_dir + "/bases2fastq-latest.tar.gz >> " + log_filename + " 2>&1"
+bases2fastq_dir = os.path.join(snakemake.params.ref_dir,"tools/bases2fastq")
+
+command = "rsync -rt " + bases2fastq_dir + "/bases2fastq " + tmp_tool_dir + "/bases2fastq >> " + log_filename + " 2>&1"
 f = open(log_filename, 'at')
 f.write("## COMMAND: "+command+"\n")
 f.close()
 shell(command)
 
-command = "tar -xvf " + tmp_tool_dir + "/bases2fastq-latest.tar.gz --directory " + tmp_tool_dir + " >> " + log_filename + " 2>&1"
-f = open(log_filename, 'at')
-f.write("## COMMAND: "+command+"\n")
-f.close()
-shell(command)
+# command = "wget https://bases2fastq-release.s3.amazonaws.com/bases2fastq-latest.tar.gz -O " + tmp_tool_dir + "/bases2fastq-latest.tar.gz >> " + log_filename + " 2>&1"
+# f = open(log_filename, 'at')
+# f.write("## COMMAND: "+command+"\n")
+# f.close()
+# shell(command)
+
+# command = "tar -xvf " + tmp_tool_dir + "/bases2fastq-latest.tar.gz --directory " + tmp_tool_dir + " >> " + log_filename + " 2>&1"
+# f = open(log_filename, 'at')
+# f.write("## COMMAND: "+command+"\n")
+# f.close()
+# shell(command)
 
 command = "pip3 install numpy==1.* bs4==0.* >> " + log_filename + " 2>&1"
 f = open(log_filename, 'at')
@@ -118,6 +126,7 @@ command = tmp_tool_dir + "/bases2fastq " + tmp_run_data \
                  + " -r " + snakemake.input.run_manifest \
                  + " -p " + str(snakemake.threads) \
                  + " --force-index-orientation " + command_line_arg \
+                 + " --num-unassigned 500" \
                  + " >> " + log_filename + " 2>&1"
 f = open(log_filename, 'at')
 f.write("## COMMAND: "+command+"\n")
