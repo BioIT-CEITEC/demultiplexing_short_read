@@ -29,6 +29,36 @@ for in_file in snakemake.params.fastq:
     if os.path.isfile(in_file):
         in_fastq_list.append(in_file)
 
+# Check if any input file contains "_R1" and handle corresponding _R3/_UMI files
+for in_file in snakemake.params.fastq:
+    basename = os.path.basename(in_file)
+    if os.path.isfile(in_file) and "_R1" in basename:
+        # Extract base path by removing everything from _R1 onwards
+        base_match = re.match(r'(.*)_R1', basename)
+        if base_match:
+            base_name = base_match.group(1)
+            dir_path = os.path.dirname(in_file)
+
+            # Look for _R3* or _UMI* files with various extensions (flexible matching)
+            for suffix in ["_R3", "_UMI"]:
+                # Match files like {base_name}_R3*.fastq.gz or {base_name}_UMI_I2.fastq.gz
+                pattern = re.compile(re.escape(base_name) + re.escape(suffix) + r".*(\.fastq\.gz|\.fq\.gz)$")
+                for candidate_file in os.listdir(dir_path):
+                    if pattern.match(candidate_file):
+                        candidate = os.path.join(dir_path, candidate_file)
+                        if os.path.isfile(candidate):
+                            # Derive output path similar to the main output but with _UMI
+                            umi_output = str(snakemake.output.fastq).replace("_R1", "_UMI")
+                            command = f"mkdir -p {os.path.dirname(umi_output)} && mv {candidate} {umi_output}"
+                            f = open(log_filename, 'at')
+                            f.write(f"## COMMAND (move {suffix}): {command}\n")
+                            f.close()
+                            shell(command)
+                            break
+                else:
+                    continue
+                break
+
 if len(in_fastq_list) == 0:
     command = "touch " + snakemake.output.fastq
     f = open(log_filename, 'at')
