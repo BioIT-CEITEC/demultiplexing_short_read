@@ -22,7 +22,7 @@ The workflow is configured via `config.json` (not in repo - created at runtime).
 - Includes platform-specific demultiplexing rules
 
 **Rules** ([rules/](file://e:\github\Bioit-CEITEC\demultiplexing_short_read\rules))
-- [demultiplexing.smk](file://e:\github\Bioit-CEITEC\demultiplexing_short_read\rules\demultiplexing.smk): Platform-specific demultiplexing (Aviti `Bases2Fastq`, MGI `calDemux`, Illumina `bcl2fastq`) + `fastq_mv` for reorganizing output
+- [demultiplexing.smk](file://e:\github\Bioit-CEITEC\demultiplexing_short_read\rules\demultiplexing.smk): Platform-specific demultiplexing (Aviti `Bases2Fastq`, MGI `calDemux`, Illumina `BCL Convert`) + `fastq_mv` for reorganizing output
 - [merge.smk]: Combines FASTQ files from multiple libraries into single output
 - [fastqc.smk]: Quality control with FastQC and MultiQC
 
@@ -30,7 +30,7 @@ The workflow is configured via `config.json` (not in repo - created at runtime).
 Each wrapper contains a `script.py` and `env.yaml` for conda environment:
 - `aviti_bases2fastq/script.py`: Aviti Bases to FASTQ conversion
 - `mgi_calDemux/script.py`: MGI demultiplexing via SplitBarcode
-- `bcl2fastq/script.py`: Illumina bcl2fastq execution
+- `bclconvert/script.py`: Illumina BCL Convert execution (binary copied from `{globalResources}/tools/bcl-convert/`)
 - `fastq_mv/script.py`: Moves/cuts FASTQ files to final locations
 - `stats_copy/script.py`: Extracts demultiplexing statistics
 
@@ -53,7 +53,7 @@ For merged output mode, set `"merged": true` in config.json.
 
 **Aviti**: Uses `Bases2Fastq` tool with base masks (R1FastQMask, R2FastQMask, UmiMask) defined per library
 **MGI**: Uses `SplitBarcode` tool with lane-based processing
-**Illumina**: Uses `bcl2fastq` with generated sample sheets
+**Illumina**: Uses `bcl-convert` with generated sample sheets (demux settings such as OverrideCycles and barcode mismatches live in the sample sheet `[Settings]`)
 
 ## Common Patterns
 

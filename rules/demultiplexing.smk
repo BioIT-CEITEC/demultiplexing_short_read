@@ -92,7 +92,7 @@ def stats_copy_input(wildcards):
     else:
         input_list = expand("{demux_setting}/{stat_filenames}" \
             ,demux_setting=get_demux_for_library(wildcards.library)
-            ,stat_filenames=["Reports", "Stats","run_samplesheet.csv","Stats"])
+            ,stat_filenames=["Reports","run_samplesheet.csv"])
 
     return input_list
 
@@ -106,7 +106,7 @@ def nread_file_input(wildcards):
             ,demux_setting=get_demux_for_library(wildcards.library)
             ,run_dir_id = config["run_dir"])
     else:
-        input_list = expand("{demux_setting}/Stats/DemultiplexingStats.xml" \
+        input_list = expand("{demux_setting}/Reports/Demultiplex_Stats.csv" \
             ,demux_setting=get_demux_for_library(wildcards.library))
     return input_list
 
@@ -187,18 +187,19 @@ else:
                 run_lane_splitting = config["run_lane_splitting"]
         script: "../wrappers/create_samplesheet/script.py"
 
-    rule illumina_bcl2fastq:
+    rule illumina_bclconvert:
         input:  samplesheet_csv = "{demux_setting}/run_samplesheet.csv"
         output: demultiplex_complete = "{demux_setting}/demux_ready.txt",
-                html  = "{demux_setting}/Stats/bcl2fastq_multiqc.html",
+                html  = "{demux_setting}/Reports/bclconvert_multiqc.html",
         params: tmp_dir = GLOBAL_TMPD_PATH,
+                bclconvert_bin = config["tooldir"] + "/bcl-convert/bcl-convert",
                 sample_tab = lambda wildcards: sample_tab[sample_tab['demux_setting'] == wildcards.demux_setting],
                 run_lane_splitting= config["run_lane_splitting"],
                 run_dir=config["run_dir"],
-        log:    "logs/{demux_setting}bcl2fastq.log"
-        params: library_configs = lambda wildcards: {lib_name:config["libraries"][lib_name] for lib_name in set(sample_tab[sample_tab["bcl2fastq_params_slug"] == wildcards.bcl2fastq_params_slug].library)}
-        conda: "../wrappers/bcl2fastq/env.yaml"
-        script: "../wrappers/bcl2fastq/script.py"
+        threads: 30
+        log:    "logs/{demux_setting}_bclconvert.log"
+        conda: "../wrappers/bclconvert/env.yaml"
+        script: "../wrappers/bclconvert/script.py"
 
 rule fastq_mv:
     input: fastq_mv_ready_input

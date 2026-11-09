@@ -55,26 +55,9 @@ elif snakemake.params.sequencer_type == "MGI":
                 barcode_counts[barcode] = total_count
 
 else:
-    infile = str(snakemake.params.nread_file[0])
-    # Load and parse the XML file
-    tree = ET.parse(infile)
-    root = tree.getroot()
-
-    # Initialize a dictionary to store the sum of BarcodeCounts for each sample
-    barcode_counts = {}
-
-    # Loop through XML to extract data
-    for sample in root.findall(".//Sample"):
-        sample_name = sample.get('name')
-        for barcode in sample.findall(".//Barcode"):
-            barcode_name = barcode.get('name')
-            if barcode_name == "all":
-                for lane in barcode.findall("Lane"):
-                    count = int(lane.find('BarcodeCount').text)
-                    if sample_name in barcode_counts:
-                        barcode_counts[sample_name] += count
-                    else:
-                        barcode_counts[sample_name] = count
+    # BCL Convert: Reports/Demultiplex_Stats.csv, one row per sample (and lane)
+    demux_stats_df = pd.read_csv(str(snakemake.params.nread_file[0]))
+    barcode_counts = demux_stats_df.groupby('SampleID')['# Reads'].sum().to_dict()
 
 # Map summed BarcodeCounts to the DataFrame sample_ID
 sample_to_barcode_count = {

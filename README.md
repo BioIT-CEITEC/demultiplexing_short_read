@@ -4,7 +4,7 @@ A Snakemake-based workflow for demultiplexing short-read sequencing data from mu
 
 ## Features
 
-- **Multi-platform support**: Illumina (bcl2fastq), Aviti (Bases2Fastq), and MGI (SplitBarcode)
+- **Multi-platform support**: Illumina (BCL Convert), Aviti (Bases2Fastq), and MGI (SplitBarcode)
 - **Flexible sample configuration**: Support for multiple libraries and samples per run
 - **Lane splitting**: Optional processing by sequencing lane
 - **UMI support**: Handle UMI reads (Aviti platform)
@@ -66,7 +66,7 @@ Create a `config.json` file with the following structure:
 
 | Type | Description | Demultiplexing Tool |
 |------|-------------|---------------------|
-| `ILLUMINA` | Illumina sequencers | bcl2fastq |
+| `ILLUMINA` | Illumina sequencers | BCL Convert |
 | `AVITI` | Element Biosciences AVITI | Bases2Fastq |
 | `MGI` | MGI sequencers | SplitBarcode |
 
@@ -147,7 +147,7 @@ The workflow uses conda environments for each wrapper. Required software:
 │   └── merge.smk                # Merge mode rules
 └── wrappers/
     ├── aviti_bases2fastq/       # Aviti Bases2Fastq wrapper
-    ├── bcl2fastq/               # Illumina bcl2fastq wrapper
+    ├── bclconvert/              # Illumina BCL Convert wrapper
     ├── mgi_calDemux/            # MGI calDemux wrapper
     ├── fastq_mv/                # FASTQ reorganization wrapper
     ├── stats_copy/              # Statistics extraction wrapper

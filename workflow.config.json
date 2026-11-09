@@ -137,7 +137,7 @@
         }
       },
       "illumina_basemask": {
-        "label": "Illumina - bcl2fastq basemask",
+        "label": "Illumina - base mask (BCL Convert OverrideCycles, e.g. Y151;I8U9;I8;Y151; bcl2fastq syntax is converted)",
         "type": "string",
         "default": "",
         "conditions": {
